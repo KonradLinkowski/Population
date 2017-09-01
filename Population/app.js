@@ -9,7 +9,7 @@ var Colours;
     Colours[Colours["WATER"] = 255] = "WATER";
     Colours[Colours["RED"] = 16711680] = "RED";
     Colours[Colours["PURPLE"] = 11796735] = "PURPLE";
-    Colours[Colours["YELLOW"] = 65510] = "YELLOW";
+    Colours[Colours["YELLOW"] = 16776960] = "YELLOW";
     Colours[Colours["MAGENTA"] = 16711935] = "MAGENTA";
 })(Colours || (Colours = {}));
 function randomInt(min, max) {
@@ -17,7 +17,7 @@ function randomInt(min, max) {
 }
 var Map = (function () {
     function Map(canvas, coloniesNumber) {
-        if (coloniesNumber === void 0) { coloniesNumber = 2; }
+        if (coloniesNumber === void 0) { coloniesNumber = 3; }
         this.coloniesNumber = coloniesNumber;
         this.canvas = canvas;
         this._height = canvas.height;
@@ -64,9 +64,9 @@ var Map = (function () {
     };
     Map.prototype.setObj = function (x, y, obj) {
         this.map[x][y] = obj;
-        //this.context.fillStyle = "rgb(" + (ID & (255 << 16)) + ", " + (ID & (255 << 8)) + ", " + (ID & 255) + ")";
-        this.context.fillStyle = "#" + obj.colour.toString(16);
-        //window.alert("#" + obj.colour.toString(16));
+        var temp = obj.colour.toString(16);
+        temp = pad(temp, 6);
+        this.context.fillStyle = "#" + temp;
         this.context.fillRect(x, y, 1, 1);
     };
     Map.prototype.killPerson = function (x, y, killer) {
@@ -74,7 +74,7 @@ var Map = (function () {
         this.setObj(x, y, killer);
     };
     Map.prototype.createColonies = function () {
-        var x, y, offset = 6, x2, y2;
+        var x, y, offset = 10, x2, y2;
         for (var i = 0; i < this.coloniesNumber; i++) {
             while (true) {
                 x = randomInt(0, this._width);
@@ -83,7 +83,7 @@ var Map = (function () {
                     break;
                 }
             }
-            for (var j = 0; j < 40; j++) {
+            for (var j = 0; j < 50; j++) {
                 while (true) {
                     x2 = x + randomInt(0, offset);
                     y2 = y + randomInt(0, offset);
@@ -127,24 +127,28 @@ var Person = (function (_super) {
         this.y = y;
         this.age = age;
         this.reproductionValue = reproductionValue;
+        this.reproductionValue = 0;
         this.vitality = vitality;
         this.map = map;
         Person.list.push(this);
     }
     Person.prototype.mortality = function () {
+        return 1;
+        /*
         if (this.age < 30) {
             return (-1 / 2) * this.age + 30;
-        }
-        else {
+        } else {
             return this.age;
         }
+        */
     };
     Person.prototype.shouldDie = function () {
-        return randomInt(0, 100) <= this.mortality();
+        return this.vitality < this.age * 4;
+        //return randomInt(0, 100) <= this.mortality();
     };
     Person.prototype.move = function () {
-        //console.log(this.colour);
         this.age++;
+        this.reproductionValue++;
         var x = Math.random() < 0.5 ? -1 : 1;
         var y = Math.random() < 0.5 ? -1 : 1;
         switch (this.map.getObj(this.x + x, this.y + y).colour) {
@@ -156,10 +160,10 @@ var Person = (function (_super) {
                 this.map.setObj(this.x, this.y, this);
                 break;
             case Colours.WATER:
-                this.vitality *= 1.2;
+                //this.vitality *= 1.2;
                 break;
             case this.colour:
-                this.age *= 0.8;
+                //this.age *= 0.8;
                 break;
             default:
                 if (this.vitality >= this.map.getObj(this.x + x, this.y + y).vitality) {
@@ -170,7 +174,8 @@ var Person = (function (_super) {
                     this.map.killPerson(this.x, this.y, this);
                 }
                 else {
-                    this.map.setObj(x, y, GRASSTILE);
+                    this.map.setObj(this.x, this.y, GRASSTILE);
+                    this.kill();
                 }
                 break;
         }
@@ -187,14 +192,20 @@ var Person = (function (_super) {
     };
     Person.prototype.kill = function () {
         this.dead = true;
+        var index = Person.list.indexOf(this, 0);
+        if (index > -1) {
+            Person.list.splice(index, 1);
+        }
     };
     Person.list = [];
     return Person;
 }(Tile));
+function pad(num, size) {
+    var s = "00000000" + num;
+    return s.substr(s.length - size);
+}
 function game() {
-    //console.log(Person.list.length);
     for (var i = 0; i < Person.list.length; i++) {
-        //console.log(Person.list[i]);
         Person.list[i].move();
     }
     testSpan.innerHTML = 'People: ' + Person.list.length;
@@ -204,24 +215,25 @@ var ageCount = 0;
 var testSpan;
 var age;
 var test;
-var coloniesColours = [Colours.MAGENTA, Colours.PURPLE, Colours.RED, Colours.YELLOW];
+var coloniesColours = [Colours.YELLOW, Colours.MAGENTA, Colours.RED, Colours.PURPLE];
 var colonies = [];
 var GRASSTILE = new Tile(Colours.GRASS);
 var WATERTILE = new Tile(Colours.WATER);
 var image = new Image();
-image.src = "mapa.png";
-//console.log(Colours.PURPLE);
+image.src = "mapa4.png";
 window.onload = function () {
-    // console.log(Colours.PURPLE.toString(16));
     test = document.getElementById('test');
     var canvas = document.getElementById('canvas');
     canvas.width = image.width;
     canvas.height = image.height;
     canvas.getContext('2d').drawImage(image, 0, 0);
+    canvas.getContext('2d').webkitImageSmoothingEnabled = false;
+    canvas.getContext('2d').mozImageSmoothingEnabled = false;
+    canvas.getContext('2d').imageSmoothingEnabled = false; /// future
     var map = new Map(canvas);
     test.innerHTML += '<span id="testSpan">People: ' + Person.list.length + '</span>';
     testSpan = document.getElementById('testSpan');
     age = document.getElementById('age');
-    setInterval(game, 100);
+    setInterval(game, 200);
 };
 //# sourceMappingURL=app.js.map

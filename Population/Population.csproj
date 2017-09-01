@@ -26,6 +26,9 @@
     <Content Include="img_fjords.jpg" />
     <Content Include="index.html" />
     <Content Include="mapa.png" />
+    <Content Include="mapa2.png" />
+    <Content Include="mapa3.png" />
+    <Content Include="mapa4.png" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

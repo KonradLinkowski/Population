@@ -3,7 +3,7 @@
     WATER = 255,
     RED = 255 << 16,
     PURPLE = (180 << 16) | 255,
-    YELLOW = (255 << 8) | 230,
+    YELLOW = (255 << 16) | (255 << 8),
     MAGENTA = (255 << 16) | 255
 }
 
@@ -19,13 +19,14 @@ class Map {
     private _width: number;
     private coloniesNumber;
 
-    constructor(canvas: HTMLCanvasElement, coloniesNumber: number = 2) {
+    constructor(canvas: HTMLCanvasElement, coloniesNumber: number = 3) {
         this.coloniesNumber = coloniesNumber;
         this.canvas = canvas;
         this._height = canvas.height;
         this._width = canvas.width;
         this.context = canvas.getContext('2d');
         let imageData = this.context.getImageData(0, 0, this._width, this._height).data;
+        
         //#1a315c
         let x, y, color;
         this.map = [];
@@ -62,9 +63,9 @@ class Map {
 
     setObj(x: number, y: number, obj: Tile): void {
         this.map[x][y] = obj;
-        //this.context.fillStyle = "rgb(" + (ID & (255 << 16)) + ", " + (ID & (255 << 8)) + ", " + (ID & 255) + ")";
-        this.context.fillStyle = "#" + obj.colour.toString(16);
-        //window.alert("#" + obj.colour.toString(16));
+        let temp: string = obj.colour.toString(16);
+        temp = pad(temp, 6);
+        this.context.fillStyle = "#" + temp;
         this.context.fillRect(x, y, 1, 1);
     }
 
@@ -74,7 +75,7 @@ class Map {
     }
 
     createColonies() {
-        let x, y, offset = 6, x2, y2;
+        let x, y, offset = 10, x2, y2;
         for (let i: number = 0; i < this.coloniesNumber; i++) {
             while (true) {
                 x = randomInt(0, this._width);
@@ -83,7 +84,7 @@ class Map {
                     break;
                 }
             } 
-            for (let j: number = 0; j < 40; j++) {
+            for (let j: number = 0; j < 50; j++) {
                 while (true) {
                     x2 = x + randomInt(0, offset);
                     y2 = y + randomInt(0, offset);
@@ -132,26 +133,31 @@ class Person extends Tile {
         this.y = y;
         this.age = age;
         this.reproductionValue = reproductionValue;
+        this.reproductionValue = 0;
         this.vitality = vitality;
         this.map = map;
         Person.list.push(this);
     }
 
     mortality(): number {
+        return 1;
+        /*
         if (this.age < 30) {
             return (-1 / 2) * this.age + 30;
         } else {
             return this.age;
         }
+        */
     }
 
     shouldDie(): boolean {
-        return randomInt(0, 100) <= this.mortality();
+        return this.vitality < this.age * 4;
+        //return randomInt(0, 100) <= this.mortality();
     }
 
     public move(): void {
-        //console.log(this.colour);
         this.age++;
+        this.reproductionValue++;
         let x = Math.random() < 0.5 ? -1 : 1;
         let y = Math.random() < 0.5 ? -1 : 1;
         switch (this.map.getObj(this.x + x, this.y + y).colour) {
@@ -163,10 +169,10 @@ class Person extends Tile {
                 this.map.setObj(this.x, this.y, this);
                 break;
             case Colours.WATER:
-                this.vitality *= 1.2;
+                //this.vitality *= 1.2;
                 break;
             case this.colour:
-                this.age *= 0.8;
+                //this.age *= 0.8;
                 break;
             default:
                 if (this.vitality >= (<Person>this.map.getObj(this.x + x, this.y + y)).vitality) {
@@ -176,7 +182,8 @@ class Person extends Tile {
                     this.y += y;
                     this.map.killPerson(this.x, this.y, this);
                 } else {
-                    this.map.setObj(x, y, GRASSTILE);
+                    this.map.setObj(this.x, this.y, GRASSTILE);
+                    this.kill();
                 }
                 break;
         }
@@ -195,13 +202,20 @@ class Person extends Tile {
 
     kill(): void {
         this.dead = true;
+        var index = Person.list.indexOf(this, 0);
+        if (index > -1) {
+            Person.list.splice(index, 1);
+        }
     }
 }
 
+function pad(num, size) {
+    var s = "00000000" + num;
+    return s.substr(s.length - size);
+}
+
 function game(): void {
-    //console.log(Person.list.length);
     for (let i: number = 0; i < Person.list.length; i++) {
-        //console.log(Person.list[i]);
         Person.list[i].move();
     }
     testSpan.innerHTML = 'People: ' + Person.list.length;
@@ -212,25 +226,26 @@ let ageCount: number = 0;
 let testSpan: HTMLElement;
 let age: HTMLElement;
 let test: HTMLElement
-let coloniesColours = [Colours.MAGENTA, Colours.PURPLE, Colours.RED, Colours.YELLOW];
+let coloniesColours = [Colours.YELLOW, Colours.MAGENTA, Colours.RED, Colours.PURPLE];
 let colonies: Array<Person> = [];
 const GRASSTILE = new Tile(Colours.GRASS);
 const WATERTILE = new Tile(Colours.WATER);
 
 let image = new Image();
-image.src = "mapa.png";
-//console.log(Colours.PURPLE);
+image.src = "mapa4.png";
 window.onload = () => {
-   // console.log(Colours.PURPLE.toString(16));
     test = document.getElementById('test');
     let canvas: any = document.getElementById('canvas');
     canvas.width = image.width;
     canvas.height = image.height;
     canvas.getContext('2d').drawImage(image, 0, 0);
+    canvas.getContext('2d').webkitImageSmoothingEnabled = false;
+    canvas.getContext('2d').mozImageSmoothingEnabled = false;
+    canvas.getContext('2d').imageSmoothingEnabled = false; /// future
     let map = new Map(<HTMLCanvasElement>canvas);
 
     test.innerHTML += '<span id="testSpan">People: ' + Person.list.length + '</span>';
     testSpan = document.getElementById('testSpan');
     age = document.getElementById('age');
-    setInterval(game, 100);
+    setInterval(game, 200);
 };
