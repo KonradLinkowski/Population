@@ -23,6 +23,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="icon.png" />
+    <Content Include="icon2.png" />
     <Content Include="img_fjords.jpg" />
     <Content Include="index.html" />
     <Content Include="mapa.png" />
