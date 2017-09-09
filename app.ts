@@ -6,12 +6,20 @@ class Util {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
-    
+
     static toColour(num: number) {
         let s: string = "000000" + num.toString(16);
         return "#" + s.substr(s.length - 6);
     }
-    
+
+    static avarage(numbers: Person[]): number {
+        let sum: number = 0;
+        for (let i: number = 0; i < numbers.length; i++) {
+            sum += numbers[i].vitality;
+        }
+        return sum / numbers.length;
+    }
+
 }
 
 class Map {
@@ -54,6 +62,10 @@ class Map {
         this.createColonies();
     }
 
+    isInBounds(x: number, y: number): boolean {
+        return x >= 0 && x < this._width && y >= 0 && y < this._height;
+    }
+
     get height(): number {
         return this._height;
     }
@@ -81,19 +93,22 @@ class Map {
         let x, y, offset = 10, x2, y2;
         for (let i: number = 0; i < this.coloniesNumber; i++) {
             while (true) {
-                x = Util.randomInt(0, this._width);
-                y = Util.randomInt(0, this._height);
+                x = Util.randomInt(0, this._width - 1);
+                y = Util.randomInt(0, this._height - 1);
+                console.log("x: " + x + " y: " + y);
                 if (this.map[x][y].colour == this.game.GRASSCOLOUR) {
                     break;
                 }
-            } 
+            }
             for (let j: number = 0; j < 50; j++) {
                 while (true) {
-                    x2 = x + Util.randomInt(0, offset);
-                    y2 = y + Util.randomInt(0, offset);
+                    do {
+                        x2 = x + Util.randomInt(0, offset);
+                        y2 = y + Util.randomInt(0, offset);
+                    } while (!this.isInBounds(x, y));
                     //window.alert("i " + i + " j " + j + " x " + x + " y " + y + " x2 " + x2 + " y2 " + y2);
                     if (this.map[x2][y2].colour == this.game.GRASSCOLOUR) {
-                        this.setObj(x2, y2, new Person (game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
+                        this.setObj(x2, y2, new Person(game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
                         break;
                     }
                 }
@@ -125,11 +140,11 @@ class Person extends Tile {
     private dead: boolean = false;
     private age: number;
     private reproductionValue: number;
-    private vitality: number;
+    private _vitality: number;
     private map: Map;
     private game: Game;
 
-    constructor(game: Game, map: Map, x: number, y: number, age: number = Util.randomInt(20, 70), reproductionValue: number = 0,
+    constructor(game: Game, map: Map, x: number, y: number, age: number = 0, reproductionValue: number = 0,
         colour: number = 0, vitality: number = Util.randomInt(20, 70)) {
         super(colour);
         this.game = game;
@@ -137,14 +152,14 @@ class Person extends Tile {
         this.y = y;
         this.age = age;
         this.reproductionValue = reproductionValue;
-        this.reproductionValue = 0;
-        this.vitality = vitality;
+        //this.reproductionValue = 0;
+        this._vitality = vitality;
         this.map = map;
         this.game.colonyPush(this);
     }
 
     shouldDie(): boolean {
-        return this.vitality < this.age;
+        return this._vitality < this.age;
         //return randomInt(0, 100) <= this.mortality();
     }
 
@@ -157,8 +172,9 @@ class Person extends Tile {
         do {
             x = Util.randomInt(-1, 1);
             y = Util.randomInt(-1, 1);
-        } while ((x == 0 && y == 0));
-        switch (this.map.getObj(this.x + x, this.y + y).colour) {
+        } while (!this.map.isInBounds(this.x + x, this.y + y) && (x == 0 && y == 0));
+        let tempColour: number = this.map.getObj(this.x + x, this.y + y) == null ? game.WATERCOLOUR : this.map.getObj(this.x + x, this.y + y).colour;
+        switch (tempColour) {
             case this.game.GRASSCOLOUR:
                 this.map.setObj(this.x, this.y, this.game.GRASSTILE);
                 this.reproduce();
@@ -173,7 +189,7 @@ class Person extends Tile {
                 //this.age *= 0.8;
                 break;
             default:
-                if (this.vitality >= (<Person>this.map.getObj(this.x + x, this.y + y)).vitality) {
+                if (this._vitality >= (<Person>this.map.getObj(this.x + x, this.y + y))._vitality) {
                     this.map.setObj(this.x, this.y, this.game.GRASSTILE);
                     this.reproduce();
                     this.x += x;
@@ -196,12 +212,17 @@ class Person extends Tile {
             return;
         }
         this.reproductionValue = 0;
-        this.map.setObj(this.x, this.y, new Person(this.game, this.map, this.x, this.y, 0, Util.randomInt(0, 100), this.colour, this.vitality));
+        let variable: number = Util.randomInt(-5, 5);
+        this.map.setObj(this.x, this.y, new Person(this.game, this.map, this.x, this.y, 0, Util.randomInt(0, 100), this.colour, this._vitality + variable));
     }
 
     kill(): void {
         this.dead = true;
         this.game.colonyRemove(this);
+    }
+
+    get vitality(): number {
+        return this._vitality;
     }
 }
 
@@ -230,16 +251,22 @@ class Game {
 
     peopleCount = 0;
 
-    constructor(canvas: HTMLCanvasElement, coloniesNumber: number) {
+    speed: number;
+
+    constructor(canvas: HTMLCanvasElement, coloniesNumber: number, image: string, speed: number) {
         this.canvas = canvas;
+        this.speed = speed;
         this.coloniesNumber = coloniesNumber;
         this.image.onload = () => {
             this.setup();
         };
-        this.image.src = "mapa4.png";
+        this.image.onerror = () => {
+            window.alert("loading failed");
+        };
+        this.image.src = image;
     }
 
-    setup(): void  {
+    setup(): void {
         this.canvas.width = this.image.width;
         this.canvas.height = this.image.height;
         this.canvas.getContext('2d').drawImage(this.image, 0, 0);
@@ -247,7 +274,7 @@ class Game {
             this.colonies[i] = [];
         }
         this.map = new Map(this, <HTMLCanvasElement>this.canvas, this.coloniesNumber)
-        setInterval(this.play.bind(this), 200);
+        setInterval(this.play.bind(this), this.speed);
         for (let i: number = 0; i < this.coloniesNumber; i++) {
             test.innerHTML += '<span></span><br/>';
         }
@@ -258,8 +285,9 @@ class Game {
         for (let i: number = 0; i < this.colonies.length; i++) {
             for (let j: number = 0; j < this.colonies[i].length; j++) {
                 this.colonies[i][j].move();
-                this.coloniesLabels[i].innerHTML = "Colony " + (i + 1) + ": " + this.colonies[i].length;
             }
+            this.coloniesLabels[i].innerHTML = "Colony " + (i + 1) + ": " + this.colonies[i].length
+                + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2);
         }
         age.innerHTML = "Age: " + this.ageCount++;
     }
@@ -291,12 +319,12 @@ let game: Game;
 window.onload = () => {
     test = document.getElementById('test');
     let canvas: any = document.getElementById('canvas');
-    
+
     canvas.getContext('2d').webkitImageSmoothingEnabled = false;
     canvas.getContext('2d').mozImageSmoothingEnabled = false;
     canvas.getContext('2d').imageSmoothingEnabled = false; /// future
 
-    game = new Game(canvas, 4);
+    game = new Game(canvas, 4, "mapa5.png", 1);
     age = document.getElementById('age');
 
 };

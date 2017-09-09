@@ -23,14 +23,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="europe.png" />
     <Content Include="icon.png" />
-    <Content Include="icon2.png" />
-    <Content Include="img_fjords.jpg" />
     <Content Include="index.html" />
     <Content Include="mapa.png" />
     <Content Include="mapa2.png" />
     <Content Include="mapa3.png" />
     <Content Include="mapa4.png" />
+    <Content Include="mapa5.png" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
