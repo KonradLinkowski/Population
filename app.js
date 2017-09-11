@@ -135,6 +135,7 @@ var Person = (function (_super) {
         if (vitality === void 0) { vitality = Util.randomInt(20, 70); }
         _super.call(this, colour);
         this.dead = false;
+        this.diseased = false;
         this.game = game;
         this.x = x;
         this.y = y;
@@ -148,6 +149,19 @@ var Person = (function (_super) {
     Person.prototype.shouldDie = function () {
         return this._vitality < this.age;
         //return randomInt(0, 100) <= this.mortality();
+    };
+    Person.prototype.cripple = function () {
+        if (this.diseased) {
+            /*
+            this._vitality *= 2;
+            this.diseased = false;
+            */
+            return;
+        }
+        if (Math.random() < 0.5)
+            return;
+        this._vitality /= 2;
+        this.diseased = true;
     };
     Person.prototype.move = function () {
         this.age++;
@@ -173,6 +187,7 @@ var Person = (function (_super) {
                 break;
             case this.colour:
                 //this.age *= 0.8;
+                this.cripple();
                 break;
             default:
                 if (this._vitality >= this.map.getObj(this.x + x, this.y + y)._vitality) {
@@ -226,7 +241,7 @@ var Game = (function () {
         this.WATERCOLOUR = this.colours.length - 1;
         this.GRASSTILE = new Tile(this.GRASSCOLOUR);
         this.WATERTILE = new Tile(this.WATERCOLOUR);
-        this.reproductiveThreshold = 20;
+        this.reproductiveThreshold = 5;
         this.image = new Image();
         this.peopleCount = 0;
         this.canvas = canvas;
@@ -289,7 +304,7 @@ window.onload = function () {
     canvas.getContext('2d').webkitImageSmoothingEnabled = false;
     canvas.getContext('2d').mozImageSmoothingEnabled = false;
     canvas.getContext('2d').imageSmoothingEnabled = false; /// future
-    game = new Game(canvas, 4, "mapa5.png", 1);
+    game = new Game(canvas, 4, "europe3.png", 5);
     age = document.getElementById('age');
 };
 //# sourceMappingURL=app.js.map

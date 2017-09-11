@@ -140,9 +140,11 @@ class Person extends Tile {
     private dead: boolean = false;
     private age: number;
     private reproductionValue: number;
+    private diseased: boolean = false;
     private _vitality: number;
     private map: Map;
     private game: Game;
+
 
     constructor(game: Game, map: Map, x: number, y: number, age: number = 0, reproductionValue: number = 0,
         colour: number = 0, vitality: number = Util.randomInt(20, 70)) {
@@ -161,6 +163,19 @@ class Person extends Tile {
     shouldDie(): boolean {
         return this._vitality < this.age;
         //return randomInt(0, 100) <= this.mortality();
+    }
+
+    cripple(): void {
+        if (this.diseased) {
+            /*
+            this._vitality *= 2;
+            this.diseased = false;
+            */
+            return;
+        }
+        if (Math.random() < 0.5) return;
+        this._vitality /= 2;
+        this.diseased = true;
     }
 
     public move(): void {
@@ -187,6 +202,7 @@ class Person extends Tile {
                 break;
             case this.colour:
                 //this.age *= 0.8;
+                this.cripple();
                 break;
             default:
                 if (this._vitality >= (<Person>this.map.getObj(this.x + x, this.y + y))._vitality) {
@@ -241,7 +257,7 @@ class Game {
 
     GRASSTILE = new Tile(this.GRASSCOLOUR);
     WATERTILE = new Tile(this.WATERCOLOUR);
-    reproductiveThreshold = 20;
+    reproductiveThreshold = 5;
 
     image = new Image();
     map: Map;
@@ -324,7 +340,7 @@ window.onload = () => {
     canvas.getContext('2d').mozImageSmoothingEnabled = false;
     canvas.getContext('2d').imageSmoothingEnabled = false; /// future
 
-    game = new Game(canvas, 4, "mapa5.png", 1);
+    game = new Game(canvas, 4, "europe3.png", 5);
     age = document.getElementById('age');
 
 };
