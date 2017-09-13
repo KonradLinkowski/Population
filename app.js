@@ -71,6 +71,8 @@ var Map = (function () {
         configurable: true
     });
     Map.prototype.getObj = function (x, y) {
+        if (this.map[x] == null)
+            return null;
         return this.map[x][y];
     };
     Map.prototype.setObj = function (x, y, obj) {
@@ -99,6 +101,7 @@ var Map = (function () {
                         x2 = x + Util.randomInt(0, offset);
                         y2 = y + Util.randomInt(0, offset);
                     } while (!this.isInBounds(x, y));
+                    //console.log("shit", x2, y2);
                     //window.alert("i " + i + " j " + j + " x " + x + " y " + y + " x2 " + x2 + " y2 " + y2);
                     if (this.map[x2][y2].colour == this.game.GRASSCOLOUR) {
                         this.setObj(x2, y2, new Person(game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
@@ -230,7 +233,7 @@ var Person = (function (_super) {
     return Person;
 }(Tile));
 var Game = (function () {
-    function Game(canvas, coloniesNumber, image, speed) {
+    function Game(canvas, image, coloniesNumber, speed, reproductive_threshold) {
         var _this = this;
         this.ageCount = 0;
         this.colours = ["#ffff00", "#ff00ff", "#ff0000", "#bb00ff", "#00ff00", "#0000ff"];
@@ -241,12 +244,12 @@ var Game = (function () {
         this.WATERCOLOUR = this.colours.length - 1;
         this.GRASSTILE = new Tile(this.GRASSCOLOUR);
         this.WATERTILE = new Tile(this.WATERCOLOUR);
-        this.reproductiveThreshold = 5;
         this.image = new Image();
         this.peopleCount = 0;
         this.canvas = canvas;
         this.speed = speed;
         this.coloniesNumber = coloniesNumber;
+        this.reproductiveThreshold = reproductive_threshold;
         this.image.onload = function () {
             _this.setup();
         };
@@ -263,7 +266,8 @@ var Game = (function () {
             this.colonies[i] = [];
         }
         this.map = new Map(this, this.canvas, this.coloniesNumber);
-        setInterval(this.play.bind(this), this.speed);
+        this.intervalPointer = setInterval(this.play.bind(this), this.speed);
+        test.innerHTML = "";
         for (var i = 0; i < this.coloniesNumber; i++) {
             test.innerHTML += '<span></span><br/>';
         }
@@ -293,18 +297,34 @@ var Game = (function () {
         }
         this.peopleCount--;
     };
+    Game.prototype.stop = function () {
+        clearInterval(this.intervalPointer);
+    };
     return Game;
 }());
 var age;
 var test;
 var game;
+var time_interval;
+var number_of_colonies;
+var reproductive_threshold;
+var canvas;
 window.onload = function () {
+    time_interval = document.querySelector("#time_interval");
+    number_of_colonies = document.querySelector("#number_of_colonies");
+    reproductive_threshold = document.querySelector("#reproductive_threshold");
     test = document.getElementById('test');
-    var canvas = document.getElementById('canvas');
+    canvas = document.getElementById('canvas');
     canvas.getContext('2d').webkitImageSmoothingEnabled = false;
     canvas.getContext('2d').mozImageSmoothingEnabled = false;
     canvas.getContext('2d').imageSmoothingEnabled = false; /// future
-    game = new Game(canvas, 4, "europe3.png", 5);
     age = document.getElementById('age');
+    startGame();
 };
+function startGame() {
+    if (game != null) {
+        game.stop();
+    }
+    game = new Game(canvas, "images/europe2.png", parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
+}
 //# sourceMappingURL=app.js.map

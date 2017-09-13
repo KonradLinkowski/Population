@@ -75,6 +75,7 @@ class Map {
     }
 
     getObj(x: number, y: number): (Tile) {
+        if (this.map[x] == null) return null;
         return this.map[x][y];
     }
 
@@ -106,6 +107,7 @@ class Map {
                         x2 = x + Util.randomInt(0, offset);
                         y2 = y + Util.randomInt(0, offset);
                     } while (!this.isInBounds(x, y));
+                    //console.log("shit", x2, y2);
                     //window.alert("i " + i + " j " + j + " x " + x + " y " + y + " x2 " + x2 + " y2 " + y2);
                     if (this.map[x2][y2].colour == this.game.GRASSCOLOUR) {
                         this.setObj(x2, y2, new Person(game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
@@ -257,7 +259,9 @@ class Game {
 
     GRASSTILE = new Tile(this.GRASSCOLOUR);
     WATERTILE = new Tile(this.WATERCOLOUR);
-    reproductiveThreshold = 5;
+    reproductiveThreshold: number;
+
+    intervalPointer;
 
     image = new Image();
     map: Map;
@@ -269,10 +273,11 @@ class Game {
 
     speed: number;
 
-    constructor(canvas: HTMLCanvasElement, coloniesNumber: number, image: string, speed: number) {
+    constructor(canvas: HTMLCanvasElement, image: string, coloniesNumber: number, speed: number, reproductive_threshold) {
         this.canvas = canvas;
         this.speed = speed;
         this.coloniesNumber = coloniesNumber;
+        this.reproductiveThreshold = reproductive_threshold;
         this.image.onload = () => {
             this.setup();
         };
@@ -290,7 +295,8 @@ class Game {
             this.colonies[i] = [];
         }
         this.map = new Map(this, <HTMLCanvasElement>this.canvas, this.coloniesNumber)
-        setInterval(this.play.bind(this), this.speed);
+        this.intervalPointer = setInterval(this.play.bind(this), this.speed);
+        test.innerHTML = "";
         for (let i: number = 0; i < this.coloniesNumber; i++) {
             test.innerHTML += '<span></span><br/>';
         }
@@ -325,22 +331,40 @@ class Game {
         this.peopleCount--;
     }
 
+    stop(): void {
+        clearInterval(this.intervalPointer);
+    }
+
 }
 
 
 let age: HTMLElement;
 let test: HTMLElement
 let game: Game;
+let time_interval: HTMLInputElement;
+let number_of_colonies: HTMLInputElement;
+let reproductive_threshold: HTMLInputElement;
+let canvas: any;
 
 window.onload = () => {
-    test = document.getElementById('test');
-    let canvas: any = document.getElementById('canvas');
 
+    time_interval = <HTMLInputElement> document.querySelector("#time_interval");
+    number_of_colonies = <HTMLInputElement> document.querySelector("#number_of_colonies");
+    reproductive_threshold = <HTMLInputElement> document.querySelector("#reproductive_threshold");
+
+    test = document.getElementById('test');
+    canvas = document.getElementById('canvas');
     canvas.getContext('2d').webkitImageSmoothingEnabled = false;
     canvas.getContext('2d').mozImageSmoothingEnabled = false;
     canvas.getContext('2d').imageSmoothingEnabled = false; /// future
-
-    game = new Game(canvas, 4, "europe3.png", 5);
     age = document.getElementById('age');
 
+    startGame();
 };
+
+function startGame() {
+    if (game != null) {
+        game.stop();
+    }
+    game = new Game(canvas, "images/europe2.png", parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
+}

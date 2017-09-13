@@ -4,16 +4,25 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="icon.png" type="image/png" sizes="16x16">
-    <title>Population Simulation</title>
+    <link rel="icon" href="images/icon.png" type="image/png" sizes="16x16">
+    <title>Population</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
     <script src="app.js"></script>
 </head>
 <body>
-    <h1>Population Simulation</h1>
+    <h1>Population</h1>
     <div id="age"></div>
     <canvas id="canvas" height="1000" width="1000"></canvas>
 
     <div id="test"></div>
+    <form action="javascript:startGame();">
+        <label for="time_interval" type="number">Time interval in miliseconds: </label>
+        <input id="time_interval" type="number" value="10" /><br />
+        <label for="number_of_colonies" type="number">Number of colonies: </label>
+        <input id="number_of_colonies" type="number" value="4" /><br />
+        <label for="reproductive_threshold" type="number">Reproductive threshold: </label>
+        <input id="reproductive_threshold" type="number" value="5" /><br />
+        <input type="submit" value="Start" />
+    </form>
 </body>
 </html>
