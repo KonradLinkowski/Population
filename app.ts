@@ -59,19 +59,13 @@ class Map {
                 this.map[x][y] = this.game.WATERTILE;
             }
         }
+        console.log("map size", this._width, this._height);
         this.createColonies();
     }
 
     isInBounds(x: number, y: number): boolean {
+        //console.log("is in bounds", x, y, this._width, this._height, x >= 0 && x < this._width && y >= 0 && y < this._height);
         return x >= 0 && x < this._width && y >= 0 && y < this._height;
-    }
-
-    get height(): number {
-        return this._height;
-    }
-
-    get width(): number {
-        return this._width;
     }
 
     getObj(x: number, y: number): (Tile) {
@@ -91,7 +85,7 @@ class Map {
     }
 
     createColonies() {
-        let x, y, offset = 10, x2, y2;
+        let x, y, offset = 10, x2, y2, test;
         for (let i: number = 0; i < this.coloniesNumber; i++) {
             while (true) {
                 x = Util.randomInt(0, this._width - 1);
@@ -102,13 +96,17 @@ class Map {
                 }
             }
             for (let j: number = 0; j < 50; j++) {
+                test = 0;
                 while (true) {
+                    test += 1;
                     do {
+                        test += 0.01;
                         x2 = x + Util.randomInt(0, offset);
                         y2 = y + Util.randomInt(0, offset);
-                    } while (!this.isInBounds(x, y));
-                    //console.log("shit", x2, y2);
-                    //window.alert("i " + i + " j " + j + " x " + x + " y " + y + " x2 " + x2 + " y2 " + y2);
+                    } while (!this.isInBounds(x2, y2));
+                    if (test >= 50) {
+                        break;
+                    }
                     if (this.map[x2][y2].colour == this.game.GRASSCOLOUR) {
                         this.setObj(x2, y2, new Person(game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
                         break;
@@ -152,9 +150,9 @@ class Person extends Tile {
         colour: number = 0, vitality: number = Util.randomInt(20, 70)) {
         super(colour);
         this.game = game;
+        this.age = age;
         this.x = x;
         this.y = y;
-        this.age = age;
         this.reproductionValue = reproductionValue;
         //this.reproductionValue = 0;
         this._vitality = vitality;
@@ -273,6 +271,10 @@ class Game {
 
     speed: number;
 
+    lastTime;
+
+    timer = 0;
+
     constructor(canvas: HTMLCanvasElement, image: string, coloniesNumber: number, speed: number, reproductive_threshold) {
         this.canvas = canvas;
         this.speed = speed;
@@ -304,6 +306,7 @@ class Game {
     }
 
     play(): void {
+        this.lastTime = Date.now();
         for (let i: number = 0; i < this.colonies.length; i++) {
             for (let j: number = 0; j < this.colonies[i].length; j++) {
                 this.colonies[i][j].move();
@@ -312,6 +315,12 @@ class Game {
                 + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2);
         }
         age.innerHTML = "Age: " + this.ageCount++;
+        this.timer += Date.now() - this.lastTime;
+        //console.log(this.timer);
+        if (this.timer > 250) {
+            fps.innerHTML = "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
+            this.timer = 0;
+        }
     }
 
     getColour(index: number): string {
@@ -335,23 +344,29 @@ class Game {
         clearInterval(this.intervalPointer);
     }
 
+    test(x, y) {
+        return this.map.isInBounds(x, y);
+    }
+
 }
 
 
 let age: HTMLElement;
 let test: HTMLElement
 let game: Game;
+let level_map;
 let time_interval: HTMLInputElement;
 let number_of_colonies: HTMLInputElement;
 let reproductive_threshold: HTMLInputElement;
+let fps;
 let canvas: any;
 
 window.onload = () => {
-
+    fps = document.querySelector("#fps");
     time_interval = <HTMLInputElement> document.querySelector("#time_interval");
     number_of_colonies = <HTMLInputElement> document.querySelector("#number_of_colonies");
     reproductive_threshold = <HTMLInputElement> document.querySelector("#reproductive_threshold");
-
+    level_map = <HTMLSelectElement> document.querySelector("#level_map");
     test = document.getElementById('test');
     canvas = document.getElementById('canvas');
     canvas.getContext('2d').webkitImageSmoothingEnabled = false;
@@ -366,5 +381,5 @@ function startGame() {
     if (game != null) {
         game.stop();
     }
-    game = new Game(canvas, "images/europe2.png", parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
+    game = new Game(canvas, "images/" + level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
 }

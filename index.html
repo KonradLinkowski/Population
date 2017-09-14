@@ -11,17 +11,31 @@
 </head>
 <body>
     <h1>Population</h1>
-    <div id="age"></div>
+    <div id="fps"></div>
     <canvas id="canvas" height="1000" width="1000"></canvas>
-
+    <div id="age"></div>
     <div id="test"></div>
+    <h2>Configuration</h2>
     <form action="javascript:startGame();">
-        <label for="time_interval" type="number">Time interval in miliseconds: </label>
-        <input id="time_interval" type="number" value="10" /><br />
-        <label for="number_of_colonies" type="number">Number of colonies: </label>
-        <input id="number_of_colonies" type="number" value="4" /><br />
-        <label for="reproductive_threshold" type="number">Reproductive threshold: </label>
-        <input id="reproductive_threshold" type="number" value="5" /><br />
+        <label for="level_map">Map: </label>
+        <select id="level_map">
+            <option value="europe5.png">Europe 5</option>
+            <option value="europe.png">Europe</option>
+            <option value="europe2.png">Europe 2</option>
+            <option value="europe3.png">Europe 3</option>
+            <option value="europe4.png">Europe 4</option>
+            <option value="mapa.png">Mapa</option>
+            <option value="mapa2.png">Mapa 2</option>
+            <option value="mapa3.png">Mapa 3</option>
+            <option value="mapa4.png">Mapa 4</option>
+            <option value="mapa5.png">Mapa 5</option>
+        </select><br />
+        <label for="time_interval">Time interval in miliseconds: </label>
+        <input id="time_interval" type="number" value="10" min="0" max="60000" required /><br />
+        <label for="number_of_colonies">Number of colonies: </label>
+        <input id="number_of_colonies" type="number" value="4" min="1" max="10" required /><br />
+        <label for="reproductive_threshold">Reproductive threshold: </label>
+        <input id="reproductive_threshold" type="number" value="5" min="0" max="40" required /><br />
         <input type="submit" value="Start" />
     </form>
 </body>

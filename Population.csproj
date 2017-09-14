@@ -26,6 +26,8 @@
     <Content Include="images\europe.png" />
     <Content Include="images\europe2.png" />
     <Content Include="images\europe3.png" />
+    <Content Include="images\europe4.png" />
+    <Content Include="images\europe5.png" />
     <Content Include="images\icon.png" />
     <Content Include="index.html" />
     <Content Include="images\mapa.png" />

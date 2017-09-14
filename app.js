@@ -51,25 +51,13 @@ var Map = (function () {
                 this.map[x][y] = this.game.WATERTILE;
             }
         }
+        console.log("map size", this._width, this._height);
         this.createColonies();
     }
     Map.prototype.isInBounds = function (x, y) {
+        //console.log("is in bounds", x, y, this._width, this._height, x >= 0 && x < this._width && y >= 0 && y < this._height);
         return x >= 0 && x < this._width && y >= 0 && y < this._height;
     };
-    Object.defineProperty(Map.prototype, "height", {
-        get: function () {
-            return this._height;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Map.prototype, "width", {
-        get: function () {
-            return this._width;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Map.prototype.getObj = function (x, y) {
         if (this.map[x] == null)
             return null;
@@ -85,7 +73,7 @@ var Map = (function () {
         this.setObj(x, y, killer);
     };
     Map.prototype.createColonies = function () {
-        var x, y, offset = 10, x2, y2;
+        var x, y, offset = 10, x2, y2, test;
         for (var i = 0; i < this.coloniesNumber; i++) {
             while (true) {
                 x = Util.randomInt(0, this._width - 1);
@@ -96,13 +84,17 @@ var Map = (function () {
                 }
             }
             for (var j = 0; j < 50; j++) {
+                test = 0;
                 while (true) {
+                    test += 1;
                     do {
+                        test += 0.01;
                         x2 = x + Util.randomInt(0, offset);
                         y2 = y + Util.randomInt(0, offset);
-                    } while (!this.isInBounds(x, y));
-                    //console.log("shit", x2, y2);
-                    //window.alert("i " + i + " j " + j + " x " + x + " y " + y + " x2 " + x2 + " y2 " + y2);
+                    } while (!this.isInBounds(x2, y2));
+                    if (test >= 50) {
+                        break;
+                    }
                     if (this.map[x2][y2].colour == this.game.GRASSCOLOUR) {
                         this.setObj(x2, y2, new Person(game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
                         break;
@@ -140,9 +132,9 @@ var Person = (function (_super) {
         this.dead = false;
         this.diseased = false;
         this.game = game;
+        this.age = age;
         this.x = x;
         this.y = y;
-        this.age = age;
         this.reproductionValue = reproductionValue;
         //this.reproductionValue = 0;
         this._vitality = vitality;
@@ -246,6 +238,7 @@ var Game = (function () {
         this.WATERTILE = new Tile(this.WATERCOLOUR);
         this.image = new Image();
         this.peopleCount = 0;
+        this.timer = 0;
         this.canvas = canvas;
         this.speed = speed;
         this.coloniesNumber = coloniesNumber;
@@ -274,6 +267,7 @@ var Game = (function () {
         this.coloniesLabels = test.getElementsByTagName("span");
     };
     Game.prototype.play = function () {
+        this.lastTime = Date.now();
         for (var i = 0; i < this.colonies.length; i++) {
             for (var j = 0; j < this.colonies[i].length; j++) {
                 this.colonies[i][j].move();
@@ -282,6 +276,12 @@ var Game = (function () {
                 + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2);
         }
         age.innerHTML = "Age: " + this.ageCount++;
+        this.timer += Date.now() - this.lastTime;
+        //console.log(this.timer);
+        if (this.timer > 250) {
+            fps.innerHTML = "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
+            this.timer = 0;
+        }
     };
     Game.prototype.getColour = function (index) {
         return this.colours[index];
@@ -300,19 +300,26 @@ var Game = (function () {
     Game.prototype.stop = function () {
         clearInterval(this.intervalPointer);
     };
+    Game.prototype.test = function (x, y) {
+        return this.map.isInBounds(x, y);
+    };
     return Game;
 }());
 var age;
 var test;
 var game;
+var level_map;
 var time_interval;
 var number_of_colonies;
 var reproductive_threshold;
+var fps;
 var canvas;
 window.onload = function () {
+    fps = document.querySelector("#fps");
     time_interval = document.querySelector("#time_interval");
     number_of_colonies = document.querySelector("#number_of_colonies");
     reproductive_threshold = document.querySelector("#reproductive_threshold");
+    level_map = document.querySelector("#level_map");
     test = document.getElementById('test');
     canvas = document.getElementById('canvas');
     canvas.getContext('2d').webkitImageSmoothingEnabled = false;
@@ -325,6 +332,6 @@ function startGame() {
     if (game != null) {
         game.stop();
     }
-    game = new Game(canvas, "images/europe2.png", parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
+    game = new Game(canvas, "images/" + level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
 }
 //# sourceMappingURL=app.js.map
