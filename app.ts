@@ -292,6 +292,13 @@ class Game {
     setup(): void {
         this.canvas.width = this.image.width;
         this.canvas.height = this.image.height;
+        /*
+        if (this.canvas.height > this.canvas.width) {
+            this.canvas.style.height = "75%";
+        } else {
+            this.canvas.style.width = "75%";
+        }
+        */
         this.canvas.getContext('2d').drawImage(this.image, 0, 0);
         for (let i: number = 0; i < this.coloniesColours; i++) {
             this.colonies[i] = [];
