@@ -1,17 +1,18 @@
-﻿//getColour dziala na koloniach, a kolory na enumie, bo przesz jest jeszcze grass i water
-
+﻿//Utilities
 class Util {
 
+    //Random int between min inclusive and max exclusive.
     static randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
-
+    //Change rgb int to rgb hexadecimal string.
     static toColour(num: number) {
         let s: string = "000000" + num.toString(16);
         return "#" + s.substr(s.length - 6);
     }
 
+    //Average vitality of Person in colony.
     static avarage(numbers: Person[]): number {
         let sum: number = 0;
         for (let i: number = 0; i < numbers.length; i++) {
@@ -20,6 +21,7 @@ class Util {
         return sum / numbers.length;
     }
 
+    //Maximum vitality of Person in colony.
     static max(numbers: Person[]): number {
         let max: number = 0;
         for (let i: number = 0; i < numbers.length; i++) {
@@ -32,7 +34,9 @@ class Util {
 
 }
 
-class Map {
+//Board
+class Board {
+
     private canvas: HTMLCanvasElement;
     private context;
     private map: (Tile)[][];
@@ -73,27 +77,32 @@ class Map {
         this.createColonies();
     }
 
+    //Check whether x and y are in board's bounds.
     isInBounds(x: number, y: number): boolean {
         //console.log("is in bounds", x, y, this._width, this._height, x >= 0 && x < this._width && y >= 0 && y < this._height);
         return x >= 0 && x < this._width && y >= 0 && y < this._height;
     }
 
+    //Returns object at (x, y).
     getObj(x: number, y: number): (Tile) {
         if (this.map[x] == null) return null;
         return this.map[x][y];
     }
 
+    //Sets object at (x, y).
     setObj(x: number, y: number, obj: Tile): void {
         this.map[x][y] = obj;
         this.context.fillStyle = (this.game.getColour(obj.colour));
         this.context.fillRect(x, y, 1, 1);
     }
 
+    //Kills Person at position.
     killPerson(x: number, y: number, killer: Person): void {
         (<Person>this.map[x][y]).kill();
         this.setObj(x, y, killer);
     }
 
+    //Create colonies.
     createColonies() {
         let x, y, offset = 10, x2, y2, test;
         for (let i: number = 0; i < this.coloniesNumber; i++) {
@@ -128,7 +137,9 @@ class Map {
 
 }
 
+//Tile
 class Tile {
+
     protected _colour: number;
 
     constructor(colour: number) {
@@ -144,7 +155,9 @@ class Tile {
     }
 }
 
+//Person
 class Person extends Tile {
+
     private x: number;
     private y: number;
     private dead: boolean = false;
@@ -152,11 +165,11 @@ class Person extends Tile {
     private reproductionValue: number;
     private diseased: boolean = false;
     private _vitality: number;
-    private map: Map;
+    private map: Board;
     private game: Game;
 
 
-    constructor(game: Game, map: Map, x: number, y: number, age: number = 0, reproductionValue: number = 0,
+    constructor(game: Game, map: Board, x: number, y: number, age: number = 0, reproductionValue: number = 0,
         colour: number = 0, vitality: number = Util.randomInt(20, 70)) {
         super(colour);
         this.game = game;
@@ -170,11 +183,13 @@ class Person extends Tile {
         this.game.colonyPush(this);
     }
 
+    //Check whether Person should die.
     shouldDie(): boolean {
         return this._vitality < this.age;
         //return randomInt(0, 100) <= this.mortality();
     }
 
+    //Make Person ill or well.
     cripple(chance: boolean): void {
         let howMuch: number;
         if (Math.random() < 0.5) return;
@@ -187,6 +202,7 @@ class Person extends Tile {
         this.diseased = true;
     }
 
+    //Person move every age.
     public move(): void {
         this.age++;
         this.reproductionValue++;
@@ -231,6 +247,7 @@ class Person extends Tile {
         }
     }
 
+    //Reproduction.
     reproduce(): void {
         if (this.reproductionValue < this.game.reproductiveThreshold) {
             return;
@@ -271,7 +288,7 @@ class Game {
     intervalPointer;
 
     image = new Image();
-    map: Map;
+    map: Board;
     canvas: HTMLCanvasElement;
 
     coloniesLabels;
@@ -312,7 +329,7 @@ class Game {
         for (let i: number = 0; i < this.coloniesNumber; i++) {
             this.colonies[i] = [];
         }
-        this.map = new Map(this, <HTMLCanvasElement>this.canvas, this.coloniesNumber)
+        this.map = new Board(this, <HTMLCanvasElement>this.canvas, this.coloniesNumber)
         this.intervalPointer = setInterval(this.play.bind(this), this.speed);
         test.innerHTML = "";
         for (let i: number = 0; i < this.coloniesNumber; i++) {
@@ -359,14 +376,9 @@ class Game {
     stop(): void {
         clearInterval(this.intervalPointer);
     }
-
-    test(x, y) {
-        return this.map.isInBounds(x, y);
-    }
-
 }
 
-
+//Bunch of global variables - :(.
 let age: HTMLElement;
 let test: HTMLElement
 let game: Game;
@@ -377,6 +389,9 @@ let reproductive_threshold: HTMLInputElement;
 let add_map: HTMLInputElement;
 let fps;
 let canvas: any;
+let grassColor;
+let waterColor;
+let gwColours: boolean = false;
 
 window.onload = () => {
     fps = document.querySelector("#fps");
@@ -395,6 +410,7 @@ window.onload = () => {
     startGame();
 };
 
+//Start Game.
 function startGame() {
     if (game != null) {
         game.stop();
@@ -402,7 +418,33 @@ function startGame() {
     game = new Game(canvas, level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
 }
 
+//Update map list after uploading new map.
 function updateMapList(): void {
     level_map.innerHTML += '<option value="' + window.URL.createObjectURL(add_map.files[0]) + '" >'
         + add_map.files[0].name + '</option>';
+}
+
+//Allow grass and water colours changing.
+function allowGWColourChanging(): void {
+    if (gwColours) {
+        gwColours = false;
+        (<HTMLElement>document.querySelector(".colorGWpick")).style.display = "none";
+        canvas.removeEventListener("mousemove", pick);
+    } else {
+        gwColours = true;
+        (<HTMLElement>document.querySelector(".colorGWpick")).style.display = "block";
+        canvas.addEventListener("mousemove", pick);
+    }
+}
+
+//Pick colours.
+function pick(event) {
+    let x = event.layerX;
+    let y = event.layerY;
+    let pixel = canvas.getContext('2d').getImageData(x, y, 1,  1);
+    let data = pixel.data;
+    let rgba = 'rgba(' + data[0] + ', ' + data[1] +
+        ', ' + data[2] + ', ' + (data[3] / 255) + ')';
+    (<HTMLElement>document.querySelector(".colorGWpick")).style.background = rgba;
+    (<HTMLElement>document.querySelector(".colorGWpick")).textContent = rgba;
 }

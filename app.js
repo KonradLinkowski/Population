@@ -1,19 +1,22 @@
-//getColour dziala na koloniach, a kolory na enumie, bo przesz jest jeszcze grass i water
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+//Utilities
 var Util = (function () {
     function Util() {
     }
+    //Random int between min inclusive and max exclusive.
     Util.randomInt = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
     };
+    //Change rgb int to rgb hexadecimal string.
     Util.toColour = function (num) {
         var s = "000000" + num.toString(16);
         return "#" + s.substr(s.length - 6);
     };
+    //Average vitality of Person in colony.
     Util.avarage = function (numbers) {
         var sum = 0;
         for (var i = 0; i < numbers.length; i++) {
@@ -21,6 +24,7 @@ var Util = (function () {
         }
         return sum / numbers.length;
     };
+    //Maximum vitality of Person in colony.
     Util.max = function (numbers) {
         var max = 0;
         for (var i = 0; i < numbers.length; i++) {
@@ -32,8 +36,9 @@ var Util = (function () {
     };
     return Util;
 }());
-var Map = (function () {
-    function Map(game, canvas, coloniesNumber) {
+//Board
+var Board = (function () {
+    function Board(game, canvas, coloniesNumber) {
         this.coloniesNumber = coloniesNumber;
         this.game = game;
         this.canvas = canvas;
@@ -63,25 +68,30 @@ var Map = (function () {
         console.log("map size", this._width, this._height);
         this.createColonies();
     }
-    Map.prototype.isInBounds = function (x, y) {
+    //Check whether x and y are in board's bounds.
+    Board.prototype.isInBounds = function (x, y) {
         //console.log("is in bounds", x, y, this._width, this._height, x >= 0 && x < this._width && y >= 0 && y < this._height);
         return x >= 0 && x < this._width && y >= 0 && y < this._height;
     };
-    Map.prototype.getObj = function (x, y) {
+    //Returns object at (x, y).
+    Board.prototype.getObj = function (x, y) {
         if (this.map[x] == null)
             return null;
         return this.map[x][y];
     };
-    Map.prototype.setObj = function (x, y, obj) {
+    //Sets object at (x, y).
+    Board.prototype.setObj = function (x, y, obj) {
         this.map[x][y] = obj;
         this.context.fillStyle = (this.game.getColour(obj.colour));
         this.context.fillRect(x, y, 1, 1);
     };
-    Map.prototype.killPerson = function (x, y, killer) {
+    //Kills Person at position.
+    Board.prototype.killPerson = function (x, y, killer) {
         this.map[x][y].kill();
         this.setObj(x, y, killer);
     };
-    Map.prototype.createColonies = function () {
+    //Create colonies.
+    Board.prototype.createColonies = function () {
         var x, y, offset = 10, x2, y2, test;
         for (var i = 0; i < this.coloniesNumber; i++) {
             while (true) {
@@ -112,8 +122,9 @@ var Map = (function () {
             }
         }
     };
-    return Map;
+    return Board;
 }());
+//Tile
 var Tile = (function () {
     function Tile(colour) {
         this._colour = colour;
@@ -130,6 +141,7 @@ var Tile = (function () {
     });
     return Tile;
 }());
+//Person
 var Person = (function (_super) {
     __extends(Person, _super);
     function Person(game, map, x, y, age, reproductionValue, colour, vitality) {
@@ -150,10 +162,12 @@ var Person = (function (_super) {
         this.map = map;
         this.game.colonyPush(this);
     }
+    //Check whether Person should die.
     Person.prototype.shouldDie = function () {
         return this._vitality < this.age;
         //return randomInt(0, 100) <= this.mortality();
     };
+    //Make Person ill or well.
     Person.prototype.cripple = function (chance) {
         var howMuch;
         if (Math.random() < 0.5)
@@ -166,6 +180,7 @@ var Person = (function (_super) {
         this._vitality /= howMuch;
         this.diseased = true;
     };
+    //Person move every age.
     Person.prototype.move = function () {
         this.age++;
         this.reproductionValue++;
@@ -210,6 +225,7 @@ var Person = (function (_super) {
             this.kill();
         }
     };
+    //Reproduction.
     Person.prototype.reproduce = function () {
         if (this.reproductionValue < this.game.reproductiveThreshold) {
             return;
@@ -273,7 +289,7 @@ var Game = (function () {
         for (var i = 0; i < this.coloniesNumber; i++) {
             this.colonies[i] = [];
         }
-        this.map = new Map(this, this.canvas, this.coloniesNumber);
+        this.map = new Board(this, this.canvas, this.coloniesNumber);
         this.intervalPointer = setInterval(this.play.bind(this), this.speed);
         test.innerHTML = "";
         for (var i = 0; i < this.coloniesNumber; i++) {
@@ -315,11 +331,9 @@ var Game = (function () {
     Game.prototype.stop = function () {
         clearInterval(this.intervalPointer);
     };
-    Game.prototype.test = function (x, y) {
-        return this.map.isInBounds(x, y);
-    };
     return Game;
 }());
+//Bunch of global variables - :(.
 var age;
 var test;
 var game;
@@ -330,6 +344,9 @@ var reproductive_threshold;
 var add_map;
 var fps;
 var canvas;
+var grassColor;
+var waterColor;
+var gwColours = false;
 window.onload = function () {
     fps = document.querySelector("#fps");
     time_interval = document.querySelector("#time_interval");
@@ -345,14 +362,40 @@ window.onload = function () {
     age = document.getElementById('age');
     startGame();
 };
+//Start Game.
 function startGame() {
     if (game != null) {
         game.stop();
     }
     game = new Game(canvas, level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
 }
+//Update map list after uploading new map.
 function updateMapList() {
     level_map.innerHTML += '<option value="' + window.URL.createObjectURL(add_map.files[0]) + '" >'
         + add_map.files[0].name + '</option>';
+}
+//Allow grass and water colours changing.
+function allowGWColourChanging() {
+    if (gwColours) {
+        gwColours = false;
+        document.querySelector(".colorGWpick").style.display = "none";
+        canvas.removeEventListener("mousemove", pick);
+    }
+    else {
+        gwColours = true;
+        document.querySelector(".colorGWpick").style.display = "block";
+        canvas.addEventListener("mousemove", pick);
+    }
+}
+//Pick colours.
+function pick(event) {
+    var x = event.layerX;
+    var y = event.layerY;
+    var pixel = canvas.getContext('2d').getImageData(x, y, 1, 1);
+    var data = pixel.data;
+    var rgba = 'rgba(' + data[0] + ', ' + data[1] +
+        ', ' + data[2] + ', ' + (data[3] / 255) + ')';
+    document.querySelector(".colorGWpick").style.background = rgba;
+    document.querySelector(".colorGWpick").textContent = rgba;
 }
 //# sourceMappingURL=app.js.map
