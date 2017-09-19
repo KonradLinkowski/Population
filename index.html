@@ -17,25 +17,27 @@
     <div id="test"></div>
     <h2>Configuration</h2>
     <form action="javascript:startGame();">
-        <label for="level_map">Map: </label>
-        <select id="level_map">
-            <option value="europe5.png">Europe 5</option>
-            <option value="europe.png">Europe</option>
-            <option value="europe2.png">Europe 2</option>
-            <option value="europe3.png">Europe 3</option>
-            <option value="europe4.png">Europe 4</option>
-            <option value="mapa.png">Mapa</option>
-            <option value="mapa2.png">Mapa 2</option>
-            <option value="mapa3.png">Mapa 3</option>
-            <option value="mapa4.png">Mapa 4</option>
-            <option value="mapa5.png">Mapa 5</option>
-        </select><br />
         <label for="time_interval">Time interval in miliseconds: </label>
         <input id="time_interval" type="number" value="10" min="0" max="60000" required /><br />
         <label for="number_of_colonies">Number of colonies: </label>
         <input id="number_of_colonies" type="number" value="4" min="1" max="10" required /><br />
         <label for="reproductive_threshold">Reproductive threshold: </label>
         <input id="reproductive_threshold" type="number" value="5" min="0" max="40" required /><br />
+        <label for="add_map">Add own map: </label>
+        <input id="add_map" type="file" accept=".png" onchange="updateMapList()" /><br />
+        <label for="level_map">Map: </label>
+        <select id="level_map">
+            <option value="images/europe5.png">Europe 5</option>
+            <option value="images/europe.png">Europe</option>
+            <option value="images/europe2.png">Europe 2</option>
+            <option value="images/europe3.png">Europe 3</option>
+            <option value="images/europe4.png">Europe 4</option>
+            <option value="images/mapa.png">Mapa</option>
+            <option value="images/mapa2.png">Mapa 2</option>
+            <option value="images/mapa3.png">Mapa 3</option>
+            <option value="images/mapa4.png">Mapa 4</option>
+            <option value="images/mapa5.png">Mapa 5</option>
+        </select><br />
         <input type="submit" value="Start" />
     </form>
     <h2>Project</h2>

@@ -20,6 +20,16 @@ class Util {
         return sum / numbers.length;
     }
 
+    static max(numbers: Person[]): number {
+        let max: number = 0;
+        for (let i: number = 0; i < numbers.length; i++) {
+            if (numbers[i].vitality > max) {
+                max = numbers[i].vitality;
+            }
+        }
+        return max;
+    }
+
 }
 
 class Map {
@@ -165,24 +175,22 @@ class Person extends Tile {
         //return randomInt(0, 100) <= this.mortality();
     }
 
-    cripple(): void {
-        if (this.diseased) {
-            /*
-            this._vitality *= 2;
+    cripple(chance: boolean): void {
+        let howMuch: number;
+        if (Math.random() < 0.5) return;
+        if (chance && this.diseased) {
+            this._vitality *= howMuch;
             this.diseased = false;
-            */
             return;
         }
-        if (Math.random() < 0.5) return;
-        this._vitality /= 2;
+        this._vitality /= howMuch;
         this.diseased = true;
     }
 
     public move(): void {
         this.age++;
         this.reproductionValue++;
-        //let x = Math.random() < 0.5 ? -1 : 1;
-        //let y = Math.random() < 0.5 ? -1 : 1;
+        //this.cripple(true);
         let x, y;
         do {
             x = Util.randomInt(-1, 1);
@@ -202,7 +210,7 @@ class Person extends Tile {
                 break;
             case this.colour:
                 //this.age *= 0.8;
-                this.cripple();
+                //this.cripple(false);
                 break;
             default:
                 if (this._vitality >= (<Person>this.map.getObj(this.x + x, this.y + y))._vitality) {
@@ -245,7 +253,8 @@ class Person extends Tile {
 class Game {
 
     ageCount: number = 0;
-    colours: string[] = ["#ffff00", "#ff00ff", "#ff0000", "#bb00ff", "#00ff00", "#0000ff"];
+    colours: string[] = ["#ffff00", "#ff00ff", "#ff0000", "#8800ff", "#ff8800", "#888888", "#8800ff", "#ff0088", "#000000", "#0088ff",
+        "#00ff00", "#0000ff"];
     //coloniesColours = [Colours.YELLOW, Colours.MAGENTA, Colours.RED, Colours.PURPLE];
     coloniesColours: number = this.colours.length - 2;
     colonies: Array<Person[]> = [];
@@ -300,26 +309,26 @@ class Game {
         }
         */
         this.canvas.getContext('2d').drawImage(this.image, 0, 0);
-        for (let i: number = 0; i < this.coloniesColours; i++) {
+        for (let i: number = 0; i < this.coloniesNumber; i++) {
             this.colonies[i] = [];
         }
         this.map = new Map(this, <HTMLCanvasElement>this.canvas, this.coloniesNumber)
         this.intervalPointer = setInterval(this.play.bind(this), this.speed);
         test.innerHTML = "";
         for (let i: number = 0; i < this.coloniesNumber; i++) {
-            test.innerHTML += '<span></span><br/>';
+            test.innerHTML += '<span style="color:' + this.colours[i] + '"></span><br/>';
         }
         this.coloniesLabels = test.getElementsByTagName("span");
     }
 
     play(): void {
         this.lastTime = Date.now();
-        for (let i: number = 0; i < this.colonies.length; i++) {
+        for (let i: number = 0; i < this.coloniesNumber; i++) {
             for (let j: number = 0; j < this.colonies[i].length; j++) {
                 this.colonies[i][j].move();
             }
             this.coloniesLabels[i].innerHTML = "Colony " + (i + 1) + ": " + this.colonies[i].length
-                + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2);
+                + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2) + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2);
         }
         age.innerHTML = "Age: " + this.ageCount++;
         this.timer += Date.now() - this.lastTime;
@@ -365,6 +374,7 @@ let level_map;
 let time_interval: HTMLInputElement;
 let number_of_colonies: HTMLInputElement;
 let reproductive_threshold: HTMLInputElement;
+let add_map: HTMLInputElement;
 let fps;
 let canvas: any;
 
@@ -373,7 +383,8 @@ window.onload = () => {
     time_interval = <HTMLInputElement> document.querySelector("#time_interval");
     number_of_colonies = <HTMLInputElement> document.querySelector("#number_of_colonies");
     reproductive_threshold = <HTMLInputElement> document.querySelector("#reproductive_threshold");
-    level_map = <HTMLSelectElement> document.querySelector("#level_map");
+    level_map = <HTMLSelectElement>document.querySelector("#level_map");
+    add_map = <HTMLInputElement>document.querySelector("#add_map");
     test = document.getElementById('test');
     canvas = document.getElementById('canvas');
     canvas.getContext('2d').webkitImageSmoothingEnabled = false;
@@ -388,5 +399,10 @@ function startGame() {
     if (game != null) {
         game.stop();
     }
-    game = new Game(canvas, "images/" + level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
+    game = new Game(canvas, level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
+}
+
+function updateMapList(): void {
+    level_map.innerHTML += '<option value="' + window.URL.createObjectURL(add_map.files[0]) + '" >'
+        + add_map.files[0].name + '</option>';
 }
