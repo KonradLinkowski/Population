@@ -3,6 +3,16 @@
     box-sizing: border-box;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    margin: 10px auto 10px auto;
+    text-align: center;
+}
+
+hgroup {
+    font-size: 3rem;
+    margin: 30px auto 30px auto;
+}
+
 html {
     width: 100%;
     height: 100%;
@@ -26,5 +36,65 @@ canvas {
   image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
   image-rendering: pixelated;                 /* Awesome future-browsers       */
   -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
-  height: 75%;
+}
+
+section, footer {
+    margin: 10px;
+}
+
+section#simulation {
+    display: flex;
+    height: 95%;
+}
+
+canvas#canvas {
+    height: 100%;
+    float: left;
+    flex-shrink: 0;
+}
+
+.flex-right {
+    margin: 10px;
+}
+
+.no-float {
+
+}
+
+section#configure {
+    display: flex;
+    justify-content: flex-start;
+}
+
+section#configure div {
+    width: 100%;
+    margin: 30px 0, 30px, 0;
+}
+
+a {
+    text-align: center;
+    margin: 0 auto;
+}
+
+section#configure > div {
+    margin: 0 10px;
+}
+
+
+.center-everything {
+    text-align: center;
+}
+
+label {
+    display: inline-flex;
+    width: 100%;
+}
+label input,
+label select {
+    flex: 1;
+    margin: 2px 0;
+}
+
+footer {
+    font-size: 10px;
 }

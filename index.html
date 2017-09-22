@@ -10,70 +10,83 @@
     <script src="app.js"></script>
 </head>
 <body>
-    <h1>Population</h1>
-    <div id="fps"></div>
-    <canvas id="canvas" height="100" width="100"></canvas>
-    <div id="age"></div>
-    <div id="test"></div>
-    <h2>Configuration</h2>
-    <form action="javascript:startGame();">
-        <label>
-            Time interval in miliseconds:
-            <input id="time_interval" type="number" value="10" min="0" max="60000" required />
-        </label><br />
-        <label>
-            Number of colonies:
-            <input id="number_of_colonies" type="number" value="4" min="1" max="10" required />
-        </label><br />
-        <label>
-            Reproductive threshold:
-            <input id="reproductive_threshold" type="number" value="5" min="0" max="40" required />
-        </label><br />
-        <label>
-            Add own map:
-            <input id="add_map" type="file" accept=".png" onchange="updateMapList()" />
-        </label><br />
-        <label>
-            Map:
-            <select id="level_map" onchange="getPreview()">
-                <option value="images/europe5.png">Europe 5</option>
-                <option value="images/europe.png">Europe</option>
-                <option value="images/europe2.png">Europe 2</option>
-                <option value="images/europe3.png">Europe 3</option>
-                <option value="images/europe4.png">Europe 4</option>
-                <option value="images/mapa.png">Mapa</option>
-                <option value="images/mapa2.png">Mapa 2</option>
-                <option value="images/mapa3.png">Mapa 3</option>
-                <option value="images/mapa4.png">Mapa 4</option>
-                <option value="images/mapa5.png">Mapa 5</option>
-            </select>
-        </label><br />
-        <label>
-            Preview:<br />
-            <canvas class="preview"></canvas><br />
-        </label>
-
-        <label>
-            Set own grass and water colours:
-            <input id="own_gw_colours" type="checkbox" value="Yes?" onchange="allowGWColourChanging()" />
-        </label><br />
-        <div class="colorGWpick" style="display:none">
-            <label>
-                Grass colour:
-                <input type="color" />
-               </label><br />
-            <label>
-                Water colour:
-                <input type="color" />
-            </label>
+    <hgroup>
+        <h1>Population</h1>
+        <h3>Almost* perfect life simulation</h3>
+    </hgroup>
+    <section id="simulation">
+        <canvas id="canvas" height="100" width="100"></canvas>
+        <div class="flex-right">
+            <div id="fps"></div>
+            <div id="age"></div>
+            <div id="test"></div>
         </div>
-        <input type="submit" value="Start" />
-    </form>
-    <h2>Project</h2>
-    <a href="https://github.com/Kon1997/Population">https://github.com/Kon1997/Population</a>
-    <h2>Project's discription</h2>
-    <a href="https://github.com/Kon1997/Population/blob/master/README.md">https://github.com/Kon1997/Population/blob/master/README.md</a>
-    <h2>Rules - almost</h2>
-    <a href="https://github.com/Hopson97/Empire/blob/master/README.md">https://github.com/Hopson97/Empire/blob/master/README.md</a>
+    </section>
+    <section id="configure" class="no-float">
+        <div>
+            <h2>Configuration</h2>
+            <form action="javascript:htCon.startGame();">
+                <label>
+                    Time interval in miliseconds:
+                    <input id="time_interval" type="number" value="10" min="0" max="60000" required />
+                </label><br />
+                <label>
+                    Number of colonies:
+                    <input id="number_of_colonies" type="number" value="10" min="1" max="10" required />
+                </label><br />
+                <label>
+                    Reproductive threshold:
+                    <input id="reproductive_threshold" type="number" value="5" min="0" max="40" required />
+                </label><br />
+                <label>
+                    Add own map:
+                    <input id="add_map" type="file" accept=".png" onchange="htCon.updateMapList()" />
+                </label><br />
+                <label>
+                    Map:
+                    <select id="level_map" onchange="htCon.getPreview()">
+                        <option value="images/europe5.png">Europe 5</option>
+                        <option value="images/europe.png">Europe</option>
+                        <option value="images/europe2.png">Europe 2</option>
+                        <option value="images/europe3.png">Europe 3</option>
+                        <option value="images/europe4.png">Europe 4</option>
+                        <option value="images/mapa.png">Mapa</option>
+                        <option value="images/mapa2.png">Mapa 2</option>
+                        <option value="images/mapa3.png">Mapa 3</option>
+                        <option value="images/mapa4.png">Mapa 4</option>
+                        <option value="images/mapa5.png">Mapa 5</option>
+                    </select>
+                </label><br />
+                <label>
+                    Preview:<br />
+                    <canvas class="preview"></canvas><br />
+                </label>
+                <label>
+                    Set own grass and water colours(experimental):
+                    <input id="own_gw_colours" type="checkbox" value="Yes?" onchange="htCon.allowGWColourChanging()" />
+                </label><br />
+                <div class="colorGWpick" style="display:none">
+                    <label>
+                        Grass colour:
+                        <input type="color" />
+                       </label><br />
+                    <label>
+                        Water colour:
+                        <input type="color" />
+                    </label>
+                </div><br />
+                <input type="submit" value="Start" />
+            </form>
+        </div>
+        <div class="center-everything">
+            <h2>Project</h2>
+            <a href="https://github.com/Kon1997/Population">https://github.com/Kon1997/Population</a>
+            <h2>Project's discription</h2>
+            <a href="https://github.com/Kon1997/Population/blob/master/README.md">https://github.com/Kon1997/Population/blob/master/README.md</a>
+            <h2>Rules - almost</h2>
+            <a href="https://github.com/Hopson97/Empire/blob/master/README.md">https://github.com/Hopson97/Empire/blob/master/README.md</a>
+        </div>
+    </section>
+    <footer>*There is no memes in this simulation.</footer>
 </body>
 </html>

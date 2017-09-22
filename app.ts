@@ -7,9 +7,14 @@ class Util {
     }
 
     //Change rgb int to rgb hexadecimal string.
-    static toColour(num: number) {
+    static rgb2hex(num: number) {
         let s: string = "000000" + num.toString(16);
         return "#" + s.substr(s.length - 6);
+    }
+
+    static int2hex(num: number) {
+        let s: string = "00" + num.toString(16);
+        return s.substr(s.length - 2);
     }
 
     //Average vitality of Person in colony.
@@ -61,7 +66,7 @@ class Board {
             this.map[i] = [];
         }
         for (let i = 0; i < imageData.length; i += 4) {
-            let color: string = Util.toColour((imageData[i] << 16) | (imageData[i + 1] << 8) | (imageData[i + 2]));
+            let color: string = '#' + Util.int2hex(imageData[i]) + Util.int2hex(imageData[i + 1]) + Util.int2hex(imageData[i + 2]);
             if (color == this.game.getColour(this.game.GRASSCOLOUR)) {
                 x = (i / 4) % this._width;
                 y = Math.floor((i / 4) / this._width);
@@ -109,11 +114,11 @@ class Board {
             while (true) {
                 x = Util.randomInt(0, this._width - 1);
                 y = Util.randomInt(0, this._height - 1);
-                console.log("x: " + x + " y: " + y);
                 if (this.map[x][y].colour == this.game.GRASSCOLOUR) {
                     break;
                 }
             }
+            console.log("x: " + x + " y: " + y);
             for (let j: number = 0; j < 50; j++) {
                 test = 0;
                 while (true) {
@@ -127,7 +132,7 @@ class Board {
                         break;
                     }
                     if (this.map[x2][y2].colour == this.game.GRASSCOLOUR) {
-                        this.setObj(x2, y2, new Person(game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
+                        this.setObj(x2, y2, new Person(this.game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
                         break;
                     }
                 }
@@ -212,7 +217,7 @@ class Person extends Tile {
             x = Util.randomInt(-1, 1);
             y = Util.randomInt(-1, 1);
         } while (!this.map.isInBounds(this.x + x, this.y + y) && (x == 0 && y == 0));
-        let tempColour: number = this.map.getObj(this.x + x, this.y + y) == null ? game.WATERCOLOUR : this.map.getObj(this.x + x, this.y + y).colour;
+        let tempColour: number = this.map.getObj(this.x + x, this.y + y) == null ? this.game.WATERCOLOUR : this.map.getObj(this.x + x, this.y + y).colour;
         switch (tempColour) {
             case this.game.GRASSCOLOUR:
                 this.map.setObj(this.x, this.y, this.game.GRASSTILE);
@@ -288,6 +293,7 @@ class Game {
 
     intervalPointer;
 
+    htmlConnector: HTMLConnector;
     image = new Image();
     map: Board;
     canvas: HTMLCanvasElement;
@@ -302,8 +308,9 @@ class Game {
 
     timer = 0;
 
-    constructor(canvas: HTMLCanvasElement, image: string, coloniesNumber: number,
+    constructor(htmlConnector: HTMLConnector, canvas: HTMLCanvasElement, image: string, coloniesNumber: number,
         speed: number, reproductive_threshold, allowGWColours: boolean = false, grassColour: string = "", waterColour: string = "") {
+        this.htmlConnector = htmlConnector;
         this.canvas = canvas;
         this.speed = speed;
         this.coloniesNumber = coloniesNumber;
@@ -341,27 +348,37 @@ class Game {
         }
         this.map = new Board(this, <HTMLCanvasElement>this.canvas, this.coloniesNumber)
         this.intervalPointer = setInterval(this.play.bind(this), this.speed);
-        test.innerHTML = "";
+        this.htmlConnector.h_statisticsPanel.innerHTML = "";
         for (let i: number = 0; i < this.coloniesNumber; i++) {
-            test.innerHTML += '<span style="color:' + this.colours[i] + '"></span><br/>';
+            this.htmlConnector.h_statisticsPanel.innerHTML += '<span style="color:' + this.colours[i] + '"></span><br/>';
         }
-        this.coloniesLabels = test.getElementsByTagName("span");
+        this.coloniesLabels = this.htmlConnector.h_statisticsPanel.getElementsByTagName("span");
     }
 
     play(): void {
         this.lastTime = Date.now();
         for (let i: number = 0; i < this.coloniesNumber; i++) {
+            if (this.colonies[i] == null) {
+                continue;
+            }
             for (let j: number = 0; j < this.colonies[i].length; j++) {
                 this.colonies[i][j].move();
+            }
+            if (this.colonies[i].length == 0) {
+                this.coloniesLabels[i].innerHTML = "<del>Colony " + (i + 1) + ": " + this.colonies[i].length
+                    + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2)
+                    + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2) + "</del>";
+                this.colonies[i] = null;
+                continue;
             }
             this.coloniesLabels[i].innerHTML = "Colony " + (i + 1) + ": " + this.colonies[i].length
                 + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2) + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2);
         }
-        age.innerHTML = "Age: " + this.ageCount++;
+        this.htmlConnector.h_ageLabel.innerHTML = "Age: " + this.ageCount++;
         this.timer += Date.now() - this.lastTime;
         //console.log(this.timer);
         if (this.timer > 250) {
-            fps.innerHTML = "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
+            this.htmlConnector.h_fpsLabel.innerHTML = "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
             this.timer = 0;
         }
     }
@@ -388,89 +405,96 @@ class Game {
     }
 }
 
-//Bunch of global variables - :(.
-let age: HTMLElement;
-let test: HTMLElement
-let game: Game;
-let level_map;
-let time_interval: HTMLInputElement;
-let number_of_colonies: HTMLInputElement;
-let reproductive_threshold: HTMLInputElement;
-let add_map: HTMLInputElement;
-let fps;
-let canvas: any;
-let grassColor;
-let waterColor;
-let gwColours: boolean = false;
+
+class HTMLConnector {
+    game: Game;
+    h_canvas: HTMLCanvasElement;
+    h_statisticsPanel: HTMLElement;
+    h_ageLabel: HTMLElement;
+    h_fpsLabel: HTMLElement;
+    h_mapSelect: HTMLSelectElement;
+    h_number_of_colonies: HTMLInputElement;
+    h_time_interval: HTMLInputElement;
+    h_reproductive_threshold: HTMLInputElement;
+    h_add_map: HTMLInputElement;
+
+    land_water_colours: boolean = false;
+
+    constructor() {
+        this.h_canvas = <HTMLCanvasElement>document.getElementById('canvas');
+        this.h_statisticsPanel = document.getElementById('test');
+        this.h_ageLabel = <HTMLElement>document.querySelector('#age');
+        this.h_fpsLabel = <HTMLElement>document.querySelector("#fps");
+        this.h_mapSelect = <HTMLSelectElement>document.querySelector("#level_map");
+        this.h_number_of_colonies = <HTMLInputElement>document.querySelector("#number_of_colonies");
+        this.h_time_interval = <HTMLInputElement>document.querySelector("#time_interval");
+        this.h_reproductive_threshold = <HTMLInputElement>document.querySelector("#reproductive_threshold");
+        this.h_add_map = <HTMLInputElement>document.querySelector("#add_map");
+        //this.h_canvas.getContext('2d').webkitImageSmoothingEnabled = false;
+        //this.h_canvas.getContext('2d').mozImageSmoothingEnabled = false;
+        //this.h_canvas.getContext('2d').imageSmoothingEnabled = false; /// future
+        this.getPreview();
+    }
+
+    //Start Game.
+    startGame() {
+        if (this.game != null) {
+            this.game.stop();
+
+        }
+        this.game = new Game(this, this.h_canvas, (<HTMLOptionElement>this.h_mapSelect.options[this.h_mapSelect.selectedIndex]).value,
+            parseInt(this.h_number_of_colonies.value), parseInt(this.h_time_interval.value), parseInt(this.h_reproductive_threshold.value));
+    }
+
+    getPreview() {
+        let canv: HTMLCanvasElement = (<HTMLCanvasElement>document.querySelector("canvas.preview"));
+        let image: HTMLImageElement = new Image();
+        image.onload = () => {
+            canv.width = image.width;
+            canv.height = image.height;
+            canv.getContext('2d').drawImage(image, 0, 0);
+        };
+        image.onerror = () => {
+            window.alert("loading preview failed");
+        };
+        image.src = (<HTMLOptionElement>this.h_mapSelect.options[this.h_mapSelect.selectedIndex]).value;
+    }
+
+    //Update map list after uploading new map.
+    updateMapList(): void {
+        this.h_mapSelect.innerHTML += '<option value="' + window.URL.createObjectURL(this.h_add_map.files[0]) + '" >'
+            + this.h_add_map.files[0].name + '</option>';
+    }
+
+    //Allow grass and water colours changing.
+    allowGWColourChanging(): void {
+        let canv: HTMLCanvasElement = (<HTMLCanvasElement>document.querySelector("canvas.preview"));
+        if (this.land_water_colours) {
+            this.land_water_colours = false;
+            (<HTMLElement>document.querySelector(".colorGWpick")).style.display = "none";
+            canv.removeEventListener("mousemove", this.pick);
+        } else {
+            this.land_water_colours = true;
+            (<HTMLElement>document.querySelector(".colorGWpick")).style.display = "block";
+            canv.addEventListener("mousemove", this.pick);
+        }
+    }
+
+    //Pick colours.
+    pick(event) {
+        let x = event.layerX;
+        let y = event.layerY;
+        let pixel = event.target.getContext('2d').getImageData(x, y, 1, 1);
+        let data = pixel.data;
+        let hex = '#' + Util.int2hex(data[0]) + Util.int2hex(data[1]) + Util.int2hex(data[2]);
+        (<HTMLElement>document.querySelector(".colorGWpick")).style.background = hex;
+        (<HTMLElement>document.querySelector(".colorGWpick")).textContent = hex;
+    }
+}
+
+let htCon: HTMLConnector;
 
 window.onload = () => {
-    fps = document.querySelector("#fps");
-    time_interval = <HTMLInputElement> document.querySelector("#time_interval");
-    number_of_colonies = <HTMLInputElement> document.querySelector("#number_of_colonies");
-    reproductive_threshold = <HTMLInputElement> document.querySelector("#reproductive_threshold");
-    level_map = <HTMLSelectElement>document.querySelector("#level_map");
-    add_map = <HTMLInputElement>document.querySelector("#add_map");
-    test = document.getElementById('test');
-    canvas = document.getElementById('canvas');
-    canvas.getContext('2d').webkitImageSmoothingEnabled = false;
-    canvas.getContext('2d').mozImageSmoothingEnabled = false;
-    canvas.getContext('2d').imageSmoothingEnabled = false; /// future
-    age = document.getElementById('age');
-    getPreview();
-
-    startGame();
+    htCon = new HTMLConnector();
+    htCon.startGame();
 };
-
-//Start Game.
-function startGame() {
-    if (game != null) {
-        game.stop();
-    }
-    game = new Game(canvas, level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
-}
-
-function getPreview() {
-    let canv: HTMLCanvasElement = (<HTMLCanvasElement>document.querySelector("canvas.preview"));
-    let image: HTMLImageElement = new Image();
-    image.onload = () => {
-        canv.width = image.width;
-        canv.height = image.height;
-        canv.getContext('2d').drawImage(image, 0, 0);
-    };
-    image.onerror = () => {
-        window.alert("loading preview failed");
-    };
-    image.src = level_map.options[level_map.selectedIndex].value;
-}
-
-//Update map list after uploading new map.
-function updateMapList(): void {
-    level_map.innerHTML += '<option value="' + window.URL.createObjectURL(add_map.files[0]) + '" >'
-        + add_map.files[0].name + '</option>';
-}
-
-//Allow grass and water colours changing.
-function allowGWColourChanging(): void {
-    let canv: HTMLCanvasElement = (<HTMLCanvasElement>document.querySelector("canvas.preview"));
-    if (gwColours) {
-        gwColours = false;
-        (<HTMLElement>document.querySelector(".colorGWpick")).style.display = "none";
-        canv.removeEventListener("mousemove", pick);
-    } else {
-        gwColours = true;
-        (<HTMLElement>document.querySelector(".colorGWpick")).style.display = "block";
-        canv.addEventListener("mousemove", pick);
-    }
-}
-
-//Pick colours.
-function pick(event) {
-    let x = event.layerX;
-    let y = event.layerY;
-    let pixel = event.target.getContext('2d').getImageData(x, y, 1,  1);
-    let data = pixel.data;
-    let rgba = 'rgba(' + data[0] + ', ' + data[1] +
-        ', ' + data[2] + ', ' + (data[3] / 255) + ')';
-    (<HTMLElement>document.querySelector(".colorGWpick")).style.background = rgba;
-    (<HTMLElement>document.querySelector(".colorGWpick")).textContent = rgba;
-}

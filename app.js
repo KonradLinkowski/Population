@@ -12,9 +12,13 @@ var Util = (function () {
         return Math.floor(Math.random() * (max - min + 1) + min);
     };
     //Change rgb int to rgb hexadecimal string.
-    Util.toColour = function (num) {
+    Util.rgb2hex = function (num) {
         var s = "000000" + num.toString(16);
         return "#" + s.substr(s.length - 6);
+    };
+    Util.int2hex = function (num) {
+        var s = "00" + num.toString(16);
+        return s.substr(s.length - 2);
     };
     //Average vitality of Person in colony.
     Util.avarage = function (numbers) {
@@ -53,7 +57,7 @@ var Board = (function () {
             this.map[i] = [];
         }
         for (var i = 0; i < imageData.length; i += 4) {
-            var color_1 = Util.toColour((imageData[i] << 16) | (imageData[i + 1] << 8) | (imageData[i + 2]));
+            var color_1 = '#' + Util.int2hex(imageData[i]) + Util.int2hex(imageData[i + 1]) + Util.int2hex(imageData[i + 2]);
             if (color_1 == this.game.getColour(this.game.GRASSCOLOUR)) {
                 x = (i / 4) % this._width;
                 y = Math.floor((i / 4) / this._width);
@@ -97,11 +101,11 @@ var Board = (function () {
             while (true) {
                 x = Util.randomInt(0, this._width - 1);
                 y = Util.randomInt(0, this._height - 1);
-                console.log("x: " + x + " y: " + y);
                 if (this.map[x][y].colour == this.game.GRASSCOLOUR) {
                     break;
                 }
             }
+            console.log("x: " + x + " y: " + y);
             for (var j = 0; j < 50; j++) {
                 test = 0;
                 while (true) {
@@ -115,7 +119,7 @@ var Board = (function () {
                         break;
                     }
                     if (this.map[x2][y2].colour == this.game.GRASSCOLOUR) {
-                        this.setObj(x2, y2, new Person(game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
+                        this.setObj(x2, y2, new Person(this.game, this, x2, y2, 0, Util.randomInt(0, 100), i, Util.randomInt(0, 100)));
                         break;
                     }
                 }
@@ -190,7 +194,7 @@ var Person = (function (_super) {
             x = Util.randomInt(-1, 1);
             y = Util.randomInt(-1, 1);
         } while (!this.map.isInBounds(this.x + x, this.y + y) && (x == 0 && y == 0));
-        var tempColour = this.map.getObj(this.x + x, this.y + y) == null ? game.WATERCOLOUR : this.map.getObj(this.x + x, this.y + y).colour;
+        var tempColour = this.map.getObj(this.x + x, this.y + y) == null ? this.game.WATERCOLOUR : this.map.getObj(this.x + x, this.y + y).colour;
         switch (tempColour) {
             case this.game.GRASSCOLOUR:
                 this.map.setObj(this.x, this.y, this.game.GRASSTILE);
@@ -248,7 +252,7 @@ var Person = (function (_super) {
     return Person;
 }(Tile));
 var Game = (function () {
-    function Game(canvas, image, coloniesNumber, speed, reproductive_threshold, allowGWColours, grassColour, waterColour) {
+    function Game(htmlConnector, canvas, image, coloniesNumber, speed, reproductive_threshold, allowGWColours, grassColour, waterColour) {
         var _this = this;
         if (allowGWColours === void 0) { allowGWColours = false; }
         if (grassColour === void 0) { grassColour = ""; }
@@ -264,6 +268,7 @@ var Game = (function () {
         this.image = new Image();
         this.peopleCount = 0;
         this.timer = 0;
+        this.htmlConnector = htmlConnector;
         this.canvas = canvas;
         this.speed = speed;
         this.coloniesNumber = coloniesNumber;
@@ -296,26 +301,36 @@ var Game = (function () {
         }
         this.map = new Board(this, this.canvas, this.coloniesNumber);
         this.intervalPointer = setInterval(this.play.bind(this), this.speed);
-        test.innerHTML = "";
+        this.htmlConnector.h_statisticsPanel.innerHTML = "";
         for (var i = 0; i < this.coloniesNumber; i++) {
-            test.innerHTML += '<span style="color:' + this.colours[i] + '"></span><br/>';
+            this.htmlConnector.h_statisticsPanel.innerHTML += '<span style="color:' + this.colours[i] + '"></span><br/>';
         }
-        this.coloniesLabels = test.getElementsByTagName("span");
+        this.coloniesLabels = this.htmlConnector.h_statisticsPanel.getElementsByTagName("span");
     };
     Game.prototype.play = function () {
         this.lastTime = Date.now();
         for (var i = 0; i < this.coloniesNumber; i++) {
+            if (this.colonies[i] == null) {
+                continue;
+            }
             for (var j = 0; j < this.colonies[i].length; j++) {
                 this.colonies[i][j].move();
+            }
+            if (this.colonies[i].length == 0) {
+                this.coloniesLabels[i].innerHTML = "<del>Colony " + (i + 1) + ": " + this.colonies[i].length
+                    + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2)
+                    + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2) + "</del>";
+                this.colonies[i] = null;
+                continue;
             }
             this.coloniesLabels[i].innerHTML = "Colony " + (i + 1) + ": " + this.colonies[i].length
                 + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2) + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2);
         }
-        age.innerHTML = "Age: " + this.ageCount++;
+        this.htmlConnector.h_ageLabel.innerHTML = "Age: " + this.ageCount++;
         this.timer += Date.now() - this.lastTime;
         //console.log(this.timer);
         if (this.timer > 250) {
-            fps.innerHTML = "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
+            this.htmlConnector.h_fpsLabel.innerHTML = "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
             this.timer = 0;
         }
     };
@@ -338,84 +353,77 @@ var Game = (function () {
     };
     return Game;
 }());
-//Bunch of global variables - :(.
-var age;
-var test;
-var game;
-var level_map;
-var time_interval;
-var number_of_colonies;
-var reproductive_threshold;
-var add_map;
-var fps;
-var canvas;
-var grassColor;
-var waterColor;
-var gwColours = false;
+var HTMLConnector = (function () {
+    function HTMLConnector() {
+        this.land_water_colours = false;
+        this.h_canvas = document.getElementById('canvas');
+        this.h_statisticsPanel = document.getElementById('test');
+        this.h_ageLabel = document.querySelector('#age');
+        this.h_fpsLabel = document.querySelector("#fps");
+        this.h_mapSelect = document.querySelector("#level_map");
+        this.h_number_of_colonies = document.querySelector("#number_of_colonies");
+        this.h_time_interval = document.querySelector("#time_interval");
+        this.h_reproductive_threshold = document.querySelector("#reproductive_threshold");
+        this.h_add_map = document.querySelector("#add_map");
+        //this.h_canvas.getContext('2d').webkitImageSmoothingEnabled = false;
+        //this.h_canvas.getContext('2d').mozImageSmoothingEnabled = false;
+        //this.h_canvas.getContext('2d').imageSmoothingEnabled = false; /// future
+        this.getPreview();
+    }
+    //Start Game.
+    HTMLConnector.prototype.startGame = function () {
+        if (this.game != null) {
+            this.game.stop();
+        }
+        this.game = new Game(this, this.h_canvas, this.h_mapSelect.options[this.h_mapSelect.selectedIndex].value, parseInt(this.h_number_of_colonies.value), parseInt(this.h_time_interval.value), parseInt(this.h_reproductive_threshold.value));
+    };
+    HTMLConnector.prototype.getPreview = function () {
+        var canv = document.querySelector("canvas.preview");
+        var image = new Image();
+        image.onload = function () {
+            canv.width = image.width;
+            canv.height = image.height;
+            canv.getContext('2d').drawImage(image, 0, 0);
+        };
+        image.onerror = function () {
+            window.alert("loading preview failed");
+        };
+        image.src = this.h_mapSelect.options[this.h_mapSelect.selectedIndex].value;
+    };
+    //Update map list after uploading new map.
+    HTMLConnector.prototype.updateMapList = function () {
+        this.h_mapSelect.innerHTML += '<option value="' + window.URL.createObjectURL(this.h_add_map.files[0]) + '" >'
+            + this.h_add_map.files[0].name + '</option>';
+    };
+    //Allow grass and water colours changing.
+    HTMLConnector.prototype.allowGWColourChanging = function () {
+        var canv = document.querySelector("canvas.preview");
+        if (this.land_water_colours) {
+            this.land_water_colours = false;
+            document.querySelector(".colorGWpick").style.display = "none";
+            canv.removeEventListener("mousemove", this.pick);
+        }
+        else {
+            this.land_water_colours = true;
+            document.querySelector(".colorGWpick").style.display = "block";
+            canv.addEventListener("mousemove", this.pick);
+        }
+    };
+    //Pick colours.
+    HTMLConnector.prototype.pick = function (event) {
+        var x = event.layerX;
+        var y = event.layerY;
+        var pixel = event.target.getContext('2d').getImageData(x, y, 1, 1);
+        var data = pixel.data;
+        var hex = '#' + Util.int2hex(data[0]) + Util.int2hex(data[1]) + Util.int2hex(data[2]);
+        document.querySelector(".colorGWpick").style.background = hex;
+        document.querySelector(".colorGWpick").textContent = hex;
+    };
+    return HTMLConnector;
+}());
+var htCon;
 window.onload = function () {
-    fps = document.querySelector("#fps");
-    time_interval = document.querySelector("#time_interval");
-    number_of_colonies = document.querySelector("#number_of_colonies");
-    reproductive_threshold = document.querySelector("#reproductive_threshold");
-    level_map = document.querySelector("#level_map");
-    add_map = document.querySelector("#add_map");
-    test = document.getElementById('test');
-    canvas = document.getElementById('canvas');
-    canvas.getContext('2d').webkitImageSmoothingEnabled = false;
-    canvas.getContext('2d').mozImageSmoothingEnabled = false;
-    canvas.getContext('2d').imageSmoothingEnabled = false; /// future
-    age = document.getElementById('age');
-    getPreview();
-    startGame();
+    htCon = new HTMLConnector();
+    htCon.startGame();
 };
-//Start Game.
-function startGame() {
-    if (game != null) {
-        game.stop();
-    }
-    game = new Game(canvas, level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
-}
-function getPreview() {
-    var canv = document.querySelector("canvas.preview");
-    var image = new Image();
-    image.onload = function () {
-        canv.width = image.width;
-        canv.height = image.height;
-        canv.getContext('2d').drawImage(image, 0, 0);
-    };
-    image.onerror = function () {
-        window.alert("loading preview failed");
-    };
-    image.src = level_map.options[level_map.selectedIndex].value;
-}
-//Update map list after uploading new map.
-function updateMapList() {
-    level_map.innerHTML += '<option value="' + window.URL.createObjectURL(add_map.files[0]) + '" >'
-        + add_map.files[0].name + '</option>';
-}
-//Allow grass and water colours changing.
-function allowGWColourChanging() {
-    var canv = document.querySelector("canvas.preview");
-    if (gwColours) {
-        gwColours = false;
-        document.querySelector(".colorGWpick").style.display = "none";
-        canv.removeEventListener("mousemove", pick);
-    }
-    else {
-        gwColours = true;
-        document.querySelector(".colorGWpick").style.display = "block";
-        canv.addEventListener("mousemove", pick);
-    }
-}
-//Pick colours.
-function pick(event) {
-    var x = event.layerX;
-    var y = event.layerY;
-    var pixel = event.target.getContext('2d').getImageData(x, y, 1, 1);
-    var data = pixel.data;
-    var rgba = 'rgba(' + data[0] + ', ' + data[1] +
-        ', ' + data[2] + ', ' + (data[3] / 255) + ')';
-    document.querySelector(".colorGWpick").style.background = rgba;
-    document.querySelector(".colorGWpick").textContent = rgba;
-}
 //# sourceMappingURL=app.js.map
