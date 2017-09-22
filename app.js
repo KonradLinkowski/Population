@@ -248,24 +248,29 @@ var Person = (function (_super) {
     return Person;
 }(Tile));
 var Game = (function () {
-    function Game(canvas, image, coloniesNumber, speed, reproductive_threshold) {
+    function Game(canvas, image, coloniesNumber, speed, reproductive_threshold, allowGWColours, grassColour, waterColour) {
         var _this = this;
+        if (allowGWColours === void 0) { allowGWColours = false; }
+        if (grassColour === void 0) { grassColour = ""; }
+        if (waterColour === void 0) { waterColour = ""; }
         this.ageCount = 0;
-        this.colours = ["#ffff00", "#ff00ff", "#ff0000", "#8800ff", "#ff8800", "#888888", "#8800ff", "#ff0088", "#000000", "#0088ff",
+        this.colours = ["#ffff00", "#ff00ff", "#ff0000", "#8800ff", "#ff8800", "#888888", "#8888ff", "#ff0088", "#000000", "#0088ff",
             "#00ff00", "#0000ff"];
         //coloniesColours = [Colours.YELLOW, Colours.MAGENTA, Colours.RED, Colours.PURPLE];
         this.coloniesColours = this.colours.length - 2;
         this.colonies = [];
         this.GRASSCOLOUR = this.colours.length - 2;
         this.WATERCOLOUR = this.colours.length - 1;
-        this.GRASSTILE = new Tile(this.GRASSCOLOUR);
-        this.WATERTILE = new Tile(this.WATERCOLOUR);
         this.image = new Image();
         this.peopleCount = 0;
         this.timer = 0;
         this.canvas = canvas;
         this.speed = speed;
         this.coloniesNumber = coloniesNumber;
+        if (allowGWColours) {
+        }
+        this.GRASSTILE = new Tile(this.GRASSCOLOUR);
+        this.WATERTILE = new Tile(this.WATERCOLOUR);
         this.reproductiveThreshold = reproductive_threshold;
         this.image.onload = function () {
             _this.setup();
@@ -360,6 +365,7 @@ window.onload = function () {
     canvas.getContext('2d').mozImageSmoothingEnabled = false;
     canvas.getContext('2d').imageSmoothingEnabled = false; /// future
     age = document.getElementById('age');
+    getPreview();
     startGame();
 };
 //Start Game.
@@ -369,6 +375,19 @@ function startGame() {
     }
     game = new Game(canvas, level_map.options[level_map.selectedIndex].value, parseInt(number_of_colonies.value), parseInt(time_interval.value), parseInt(reproductive_threshold.value));
 }
+function getPreview() {
+    var canv = document.querySelector("canvas.preview");
+    var image = new Image();
+    image.onload = function () {
+        canv.width = image.width;
+        canv.height = image.height;
+        canv.getContext('2d').drawImage(image, 0, 0);
+    };
+    image.onerror = function () {
+        window.alert("loading preview failed");
+    };
+    image.src = level_map.options[level_map.selectedIndex].value;
+}
 //Update map list after uploading new map.
 function updateMapList() {
     level_map.innerHTML += '<option value="' + window.URL.createObjectURL(add_map.files[0]) + '" >'
@@ -376,22 +395,23 @@ function updateMapList() {
 }
 //Allow grass and water colours changing.
 function allowGWColourChanging() {
+    var canv = document.querySelector("canvas.preview");
     if (gwColours) {
         gwColours = false;
         document.querySelector(".colorGWpick").style.display = "none";
-        canvas.removeEventListener("mousemove", pick);
+        canv.removeEventListener("mousemove", pick);
     }
     else {
         gwColours = true;
         document.querySelector(".colorGWpick").style.display = "block";
-        canvas.addEventListener("mousemove", pick);
+        canv.addEventListener("mousemove", pick);
     }
 }
 //Pick colours.
 function pick(event) {
     var x = event.layerX;
     var y = event.layerY;
-    var pixel = canvas.getContext('2d').getImageData(x, y, 1, 1);
+    var pixel = event.target.getContext('2d').getImageData(x, y, 1, 1);
     var data = pixel.data;
     var rgba = 'rgba(' + data[0] + ', ' + data[1] +
         ', ' + data[2] + ', ' + (data[3] / 255) + ')';
