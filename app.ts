@@ -27,7 +27,7 @@ class Util {
     }
 
     //Maximum vitality of Person in colony.
-    static max(numbers: Person[]): number {
+    static maxVitality(numbers: Person[]): number {
         let max: number = 0;
         for (let i: number = 0; i < numbers.length; i++) {
             if (numbers[i].vitality > max) {
@@ -37,6 +37,30 @@ class Util {
         return max;
     }
 
+    static maxNumber(...args: number[]) {
+        let max: number = 0;
+        for (let arg of args) {
+            if (arg > max) {
+                max = arg;
+            }
+        }
+        return max;
+    }
+
+    static maxSaturation(imageData): Uint8ClampedArray {
+        let temp: number;
+        for (let i: number = 0; i < imageData.length; i += 4) {
+            temp = Util.maxNumber(imageData[i], imageData[i + 1], imageData[i + 2]);
+            for (let j: number = 0; j < 3; j++) {
+                if (imageData[i + j] == temp) {
+                    imageData[i + j] = 255;
+                } else {
+                    imageData[i + j] = 0;
+                }
+            }
+        }
+        return imageData;
+    }
 }
 
 //Board
@@ -367,12 +391,12 @@ class Game {
             if (this.colonies[i].length == 0) {
                 this.coloniesLabels[i].innerHTML = "<del>Colony " + (i + 1) + ": " + this.colonies[i].length
                     + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2)
-                    + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2) + "</del>";
+                    + " Max Vit: " + Util.maxVitality(this.colonies[i]).toFixed(2) + "</del>";
                 this.colonies[i] = null;
                 continue;
             }
             this.coloniesLabels[i].innerHTML = "Colony " + (i + 1) + ": " + this.colonies[i].length
-                + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2) + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2);
+                + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2) + " Max Vit: " + Util.maxVitality(this.colonies[i]).toFixed(2);
         }
         this.htmlConnector.h_ageLabel.innerHTML = "Age: " + this.ageCount++;
         this.timer += Date.now() - this.lastTime;
@@ -453,6 +477,8 @@ class HTMLConnector {
             canv.width = image.width;
             canv.height = image.height;
             canv.getContext('2d').drawImage(image, 0, 0);
+            //let imageData: ImageData = new ImageData(Util.maxSaturation(canv.getContext('2d').getImageData(0, 0, image.width, image.height).data),image.width, image.height);
+            //canv.getContext('2d').putImageData(imageData, 0, 0);
         };
         image.onerror = () => {
             window.alert("loading preview failed");

@@ -8,10 +8,7 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
 }
 
-hgroup {
-    font-size: 3rem;
-    margin: 30px auto 30px auto;
-}
+
 
 html {
     width: 100%;
@@ -21,6 +18,9 @@ html {
 body {
     width: 100%;
     height: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
     font-family: 'Segoe UI', sans-serif;
 }
 
@@ -44,12 +44,9 @@ section, footer {
 
 section#simulation {
     display: flex;
-    height: 95%;
 }
 
 canvas#canvas {
-    height: 100%;
-    float: left;
     flex-shrink: 0;
 }
 
@@ -68,7 +65,6 @@ section#configure {
 
 section#configure div {
     width: 100%;
-    margin: 30px 0, 30px, 0;
 }
 
 a {
@@ -97,4 +93,33 @@ label select {
 
 footer {
     font-size: 10px;
+}
+
+@media (orientation: landscape) {
+    section {
+        flex-direction: row;
+    }
+    section#simulation {
+        height: 95%;
+    }
+    canvas#canvas {
+        height: 100%;
+    }
+    hgroup {
+    font-size: 3rem;
+    margin: 30px auto 30px auto;
+}
+}
+
+@media (orientation: portrait) {
+    section {
+        flex-direction: column;
+    }
+    canvas#canvas {
+        width: 100%;
+    }
+    hgroup {
+    font-size: 2rem;
+    margin: 30px auto 30px auto;
+}
 }

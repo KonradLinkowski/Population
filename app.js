@@ -29,7 +29,7 @@ var Util = (function () {
         return sum / numbers.length;
     };
     //Maximum vitality of Person in colony.
-    Util.max = function (numbers) {
+    Util.maxVitality = function (numbers) {
         var max = 0;
         for (var i = 0; i < numbers.length; i++) {
             if (numbers[i].vitality > max) {
@@ -37,6 +37,35 @@ var Util = (function () {
             }
         }
         return max;
+    };
+    Util.maxNumber = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
+        var max = 0;
+        for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
+            var arg = args_1[_a];
+            if (arg > max) {
+                max = arg;
+            }
+        }
+        return max;
+    };
+    Util.maxSaturation = function (imageData) {
+        var temp;
+        for (var i = 0; i < imageData.length; i += 4) {
+            temp = Util.maxNumber(imageData[i], imageData[i + 1], imageData[i + 2]);
+            for (var j = 0; j < 3; j++) {
+                if (imageData[i + j] == temp) {
+                    imageData[i + j] = 255;
+                }
+                else {
+                    imageData[i + j] = 0;
+                }
+            }
+        }
+        return imageData;
     };
     return Util;
 }());
@@ -319,12 +348,12 @@ var Game = (function () {
             if (this.colonies[i].length == 0) {
                 this.coloniesLabels[i].innerHTML = "<del>Colony " + (i + 1) + ": " + this.colonies[i].length
                     + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2)
-                    + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2) + "</del>";
+                    + " Max Vit: " + Util.maxVitality(this.colonies[i]).toFixed(2) + "</del>";
                 this.colonies[i] = null;
                 continue;
             }
             this.coloniesLabels[i].innerHTML = "Colony " + (i + 1) + ": " + this.colonies[i].length
-                + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2) + " Max Vit: " + Util.max(this.colonies[i]).toFixed(2);
+                + " Avg Vit : " + Util.avarage(this.colonies[i]).toFixed(2) + " Max Vit: " + Util.maxVitality(this.colonies[i]).toFixed(2);
         }
         this.htmlConnector.h_ageLabel.innerHTML = "Age: " + this.ageCount++;
         this.timer += Date.now() - this.lastTime;
@@ -384,6 +413,8 @@ var HTMLConnector = (function () {
             canv.width = image.width;
             canv.height = image.height;
             canv.getContext('2d').drawImage(image, 0, 0);
+            //let imageData: ImageData = new ImageData(Util.maxSaturation(canv.getContext('2d').getImageData(0, 0, image.width, image.height).data),image.width, image.height);
+            //canv.getContext('2d').putImageData(imageData, 0, 0);
         };
         image.onerror = function () {
             window.alert("loading preview failed");
