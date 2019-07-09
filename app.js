@@ -1,10 +1,18 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 //Utilities
-var Util = (function () {
+var Util = /** @class */ (function () {
     function Util() {
     }
     //Random int between min inclusive and max exclusive.
@@ -41,7 +49,7 @@ var Util = (function () {
     Util.maxNumber = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i - 0] = arguments[_i];
+            args[_i] = arguments[_i];
         }
         var max = 0;
         for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
@@ -70,7 +78,7 @@ var Util = (function () {
     return Util;
 }());
 //Board
-var Board = (function () {
+var Board = /** @class */ (function () {
     function Board(game, canvas, coloniesNumber) {
         this.coloniesNumber = coloniesNumber;
         this.game = game;
@@ -158,7 +166,7 @@ var Board = (function () {
     return Board;
 }());
 //Tile
-var Tile = (function () {
+var Tile = /** @class */ (function () {
     function Tile(colour) {
         this._colour = colour;
     }
@@ -175,25 +183,26 @@ var Tile = (function () {
     return Tile;
 }());
 //Person
-var Person = (function (_super) {
+var Person = /** @class */ (function (_super) {
     __extends(Person, _super);
     function Person(game, map, x, y, age, reproductionValue, colour, vitality) {
         if (age === void 0) { age = 0; }
         if (reproductionValue === void 0) { reproductionValue = 0; }
         if (colour === void 0) { colour = 0; }
         if (vitality === void 0) { vitality = Util.randomInt(20, 70); }
-        _super.call(this, colour);
-        this.dead = false;
-        this.diseased = false;
-        this.game = game;
-        this.age = age;
-        this.x = x;
-        this.y = y;
-        this.reproductionValue = reproductionValue;
+        var _this = _super.call(this, colour) || this;
+        _this.dead = false;
+        _this.diseased = false;
+        _this.game = game;
+        _this.age = age;
+        _this.x = x;
+        _this.y = y;
+        _this.reproductionValue = reproductionValue;
         //this.reproductionValue = 0;
-        this._vitality = vitality;
-        this.map = map;
-        this.game.colonyPush(this);
+        _this._vitality = vitality;
+        _this.map = map;
+        _this.game.colonyPush(_this);
+        return _this;
     }
     //Check whether Person should die.
     Person.prototype.shouldDie = function () {
@@ -280,7 +289,7 @@ var Person = (function (_super) {
     });
     return Person;
 }(Tile));
-var Game = (function () {
+var Game = /** @class */ (function () {
     function Game(htmlConnector, canvas, image, coloniesNumber, speed, reproductive_threshold, allowGWColours, grassColour, waterColour) {
         var _this = this;
         if (allowGWColours === void 0) { allowGWColours = false; }
@@ -302,6 +311,10 @@ var Game = (function () {
         this.speed = speed;
         this.coloniesNumber = coloniesNumber;
         if (allowGWColours) {
+            /*
+            this.GRASSCOLOUR = grassColour;
+            this.WATERCOLOUR = waterColour;
+            */
         }
         this.GRASSTILE = new Tile(this.GRASSCOLOUR);
         this.WATERTILE = new Tile(this.WATERCOLOUR);
@@ -382,7 +395,7 @@ var Game = (function () {
     };
     return Game;
 }());
-var HTMLConnector = (function () {
+var HTMLConnector = /** @class */ (function () {
     function HTMLConnector() {
         this.land_water_colours = false;
         this.h_canvas = document.getElementById('canvas');
