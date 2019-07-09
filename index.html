@@ -36,21 +36,21 @@
             <h2>Configuration</h2>
             <form action="javascript:htCon.startGame();">
                 <label>
-                    Time interval in miliseconds:
+                    Time interval in ms:
                     <input id="time_interval" type="number" value="10" min="0" max="60000" required />
-                </label><br />
+                </label>
                 <label>
                     Number of colonies:
                     <input id="number_of_colonies" type="number" value="10" min="1" max="10" required />
-                </label><br />
+                </label>
                 <label>
                     Reproductive threshold:
                     <input id="reproductive_threshold" type="number" value="5" min="0" max="40" required />
-                </label><br />
+                </label>
                 <label>
                     Add own map:
                     <input id="add_map" type="file" accept=".png" onchange="htCon.updateMapList()" />
-                </label><br />
+                </label>
                 <label>
                     Map:
                     <select id="level_map" onchange="htCon.getPreview()">
@@ -65,35 +65,33 @@
                         <option value="images/mapa4.png">Mapa 4</option>
                         <option value="images/mapa5.png">Mapa 5</option>
                     </select>
-                </label><br />
-                <label>
-                    Preview:<br />
-                    <canvas class="preview"></canvas><br />
                 </label>
+                <div>
+                    <span>Preview:</span>
+                    <canvas class="preview"></canvas>
+                </div>
                 <label>
                     Set own grass and water colours(experimental):
                     <input id="own_gw_colours" type="checkbox" value="Yes?" onchange="htCon.allowGWColourChanging()" />
-                </label><br />
+                </label>
                 <div class="colorGWpick" style="display:none">
                     <label>
                         Grass colour:
                         <input type="color" />
-                       </label><br />
+                       </label>
                     <label>
                         Water colour:
                         <input type="color" />
                     </label>
-                </div><br />
+                </div>
                 <input type="submit" value="Start" />
             </form>
         </div>
         <div class="center-everything">
-            <h2>Project</h2>
-            <a href="https://github.com/Kon1997/Population">https://github.com/Kon1997/Population</a>
-            <h2>Project's discription</h2>
-            <a href="https://github.com/Kon1997/Population/blob/master/README.md">https://github.com/Kon1997/Population/blob/master/README.md</a>
+            <h2>Repository</h2>
+            <a href="https://github.com/KonradLinkowski/Population">KonradLinkowski/Population</a>
             <h2>Rules - almost</h2>
-            <a href="https://github.com/Hopson97/Empire/blob/master/README.md">https://github.com/Hopson97/Empire/blob/master/README.md</a>
+            <a href="https://github.com/Hopson97/Empire/blob/master/README.md">Hopson97/Empire</a>
         </div>
     </section>
     <footer>*There is no memes in this simulation.</footer>

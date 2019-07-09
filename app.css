@@ -54,18 +54,11 @@ canvas#canvas {
     margin: 10px;
 }
 
-.no-float {
-
-}
-
 section#configure {
     display: flex;
     justify-content: flex-start;
 }
 
-section#configure div {
-    width: 100%;
-}
 
 a {
     text-align: center;
@@ -88,7 +81,11 @@ label {
 label input,
 label select {
     flex: 1;
-    margin: 2px 0;
+    margin: 2px 2px 2px 5px;
+    padding: 2px;
+}
+input, select, label {
+    cursor: pointer;
 }
 
 footer {
