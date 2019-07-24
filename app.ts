@@ -72,7 +72,6 @@ class Board {
     let imageData = this.context.getImageData(0, 0, this.width, this.height)
       .data;
 
-    //#1a315c
     this.map = [];
     for (let i = 0; i < this.width; i++) {
       this.map[i] = [];
@@ -100,7 +99,6 @@ class Board {
 
   //Check whether x and y are in board's bounds.
   isInBounds(x: number, y: number): boolean {
-    //console.log("is in bounds", x, y, this._width, this._height, x >= 0 && x < this._width && y >= 0 && y < this._height);
     return x >= 0 && x < this.width && y >= 0 && y < this.height;
   }
 
@@ -216,7 +214,6 @@ class Person extends Tile {
     this.x = x;
     this.y = y;
     this.reproductionValue = reproductionValue;
-    //this.reproductionValue = 0;
     this._vitality = vitality;
     this.map = map;
     this.game.colonyPush(this);
@@ -225,7 +222,6 @@ class Person extends Tile {
   //Check whether Person should die.
   shouldDie(): boolean {
     return this._vitality < this.age;
-    //return randomInt(0, 100) <= this.mortality();
   }
 
   //Make Person ill or well.
@@ -267,11 +263,8 @@ class Person extends Tile {
         this.map.setObj(this.x, this.y, this);
         break;
       case this.game.WATERCOLOUR:
-        //this.vitality *= 1.2;
         break;
       case this.colour:
-        //this.age *= 0.8;
-        //this.cripple(false);
         break;
       default:
         if (
@@ -344,7 +337,6 @@ class Game {
     "#00ff00",
     "#0000ff"
   ];
-  //coloniesColours = [Colours.YELLOW, Colours.MAGENTA, Colours.RED, Colours.PURPLE];
   coloniesColours: number = this.colours.length - 2;
   colonies: Person[][] = [];
 
@@ -390,12 +382,6 @@ class Game {
     this.canvas = canvas;
     this.speed = speed;
     this.coloniesNumber = coloniesNumber;
-    if (allowGWColours) {
-      /*
-      this.GRASSCOLOUR = grassColour;
-      this.WATERCOLOUR = waterColour;
-    */
-    }
     this.GRASSTILE = new Tile(this.GRASSCOLOUR);
     this.WATERTILE = new Tile(this.WATERCOLOUR);
     this.reproductiveThreshold = reproductive_threshold;
@@ -473,7 +459,6 @@ class Game {
     }
     this.htmlConnector.h_ageLabel.innerHTML = "Age: " + this.ageCount++;
     this.timer += Date.now() - this.lastTime;
-    //console.log(this.timer);
     if (this.timer > 250) {
       this.htmlConnector.h_fpsLabel.innerHTML =
         "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
@@ -529,9 +514,6 @@ class HTMLConnector {
       "#reproductive_threshold"
     );
     this.h_add_map = document.querySelector("#add_map");
-    //this.h_canvas.getContext('2d').webkitImageSmoothingEnabled = false;
-    //this.h_canvas.getContext('2d').mozImageSmoothingEnabled = false;
-    //this.h_canvas.getContext('2d').imageSmoothingEnabled = false; /// future
     this.getPreview();
   }
 
@@ -559,8 +541,6 @@ class HTMLConnector {
       canvas.width = image.width;
       canvas.height = image.height;
       canvas.getContext("2d").drawImage(image, 0, 0);
-      //let imageData: ImageData = new ImageData(Util.maxSaturation(canv.getContext('2d').getImageData(0, 0, image.width, image.height).data),image.width, image.height);
-      //canv.getContext('2d').putImageData(imageData, 0, 0);
     };
     image.onerror = () => {
       window.alert("loading preview failed");

@@ -74,7 +74,6 @@ var Board = /** @class */ (function () {
         this.context = canvas.getContext("2d");
         var imageData = this.context.getImageData(0, 0, this.width, this.height)
             .data;
-        //#1a315c
         this.map = [];
         for (var i = 0; i < this.width; i++) {
             this.map[i] = [];
@@ -100,7 +99,6 @@ var Board = /** @class */ (function () {
     }
     //Check whether x and y are in board's bounds.
     Board.prototype.isInBounds = function (x, y) {
-        //console.log("is in bounds", x, y, this._width, this._height, x >= 0 && x < this._width && y >= 0 && y < this._height);
         return x >= 0 && x < this.width && y >= 0 && y < this.height;
     };
     //Returns object at (x, y).
@@ -187,7 +185,6 @@ var Person = /** @class */ (function (_super) {
         _this.x = x;
         _this.y = y;
         _this.reproductionValue = reproductionValue;
-        //this.reproductionValue = 0;
         _this._vitality = vitality;
         _this.map = map;
         _this.game.colonyPush(_this);
@@ -196,7 +193,6 @@ var Person = /** @class */ (function (_super) {
     //Check whether Person should die.
     Person.prototype.shouldDie = function () {
         return this._vitality < this.age;
-        //return randomInt(0, 100) <= this.mortality();
     };
     //Make Person ill or well.
     Person.prototype.cripple = function (chance) {
@@ -234,11 +230,8 @@ var Person = /** @class */ (function (_super) {
                 this.map.setObj(this.x, this.y, this);
                 break;
             case this.game.WATERCOLOUR:
-                //this.vitality *= 1.2;
                 break;
             case this.colour:
-                //this.age *= 0.8;
-                //this.cripple(false);
                 break;
             default:
                 if (this._vitality >=
@@ -303,7 +296,6 @@ var Game = /** @class */ (function () {
             "#00ff00",
             "#0000ff"
         ];
-        //coloniesColours = [Colours.YELLOW, Colours.MAGENTA, Colours.RED, Colours.PURPLE];
         this.coloniesColours = this.colours.length - 2;
         this.colonies = [];
         this.GRASSCOLOUR = this.colours.length - 2;
@@ -315,12 +307,6 @@ var Game = /** @class */ (function () {
         this.canvas = canvas;
         this.speed = speed;
         this.coloniesNumber = coloniesNumber;
-        if (allowGWColours) {
-            /*
-            this.GRASSCOLOUR = grassColour;
-            this.WATERCOLOUR = waterColour;
-          */
-        }
         this.GRASSTILE = new Tile(this.GRASSCOLOUR);
         this.WATERTILE = new Tile(this.WATERCOLOUR);
         this.reproductiveThreshold = reproductive_threshold;
@@ -390,7 +376,6 @@ var Game = /** @class */ (function () {
         }
         this.htmlConnector.h_ageLabel.innerHTML = "Age: " + this.ageCount++;
         this.timer += Date.now() - this.lastTime;
-        //console.log(this.timer);
         if (this.timer > 250) {
             this.htmlConnector.h_fpsLabel.innerHTML =
                 "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
@@ -428,9 +413,6 @@ var HTMLConnector = /** @class */ (function () {
         this.h_time_interval = document.querySelector("#time_interval");
         this.h_reproductive_threshold = document.querySelector("#reproductive_threshold");
         this.h_add_map = document.querySelector("#add_map");
-        //this.h_canvas.getContext('2d').webkitImageSmoothingEnabled = false;
-        //this.h_canvas.getContext('2d').mozImageSmoothingEnabled = false;
-        //this.h_canvas.getContext('2d').imageSmoothingEnabled = false; /// future
         this.getPreview();
     }
     //Start Game.
@@ -447,8 +429,6 @@ var HTMLConnector = /** @class */ (function () {
             canvas.width = image.width;
             canvas.height = image.height;
             canvas.getContext("2d").drawImage(image, 0, 0);
-            //let imageData: ImageData = new ImageData(Util.maxSaturation(canv.getContext('2d').getImageData(0, 0, image.width, image.height).data),image.width, image.height);
-            //canv.getContext('2d').putImageData(imageData, 0, 0);
         };
         image.onerror = function () {
             window.alert("loading preview failed");
