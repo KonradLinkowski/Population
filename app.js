@@ -29,7 +29,7 @@ var Util = /** @class */ (function () {
         return s.substr(s.length - 2);
     };
     //Average vitality of Person in colony.
-    Util.avarage = function (numbers) {
+    Util.average = function (numbers) {
         var sum = 0;
         for (var i = 0; i < numbers.length; i++) {
             sum += numbers[i].vitality;
@@ -46,24 +46,10 @@ var Util = /** @class */ (function () {
         }
         return max;
     };
-    Util.maxNumber = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var max = 0;
-        for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
-            var arg = args_1[_a];
-            if (arg > max) {
-                max = arg;
-            }
-        }
-        return max;
-    };
     Util.maxSaturation = function (imageData) {
         var temp;
         for (var i = 0; i < imageData.length; i += 4) {
-            temp = Util.maxNumber(imageData[i], imageData[i + 1], imageData[i + 2]);
+            temp = Math.max(imageData[i], imageData[i + 1], imageData[i + 2]);
             for (var j = 0; j < 3; j++) {
                 if (imageData[i + j] == temp) {
                     imageData[i + j] = 255;
@@ -83,40 +69,39 @@ var Board = /** @class */ (function () {
         this.coloniesNumber = coloniesNumber;
         this.game = game;
         this.canvas = canvas;
-        this._height = canvas.height;
-        this._width = canvas.width;
+        this.height = canvas.height;
+        this.width = canvas.width;
         this.context = canvas.getContext("2d");
-        var imageData = this.context.getImageData(0, 0, this._width, this._height)
+        var imageData = this.context.getImageData(0, 0, this.width, this.height)
             .data;
         //#1a315c
-        var x, y, color;
         this.map = [];
-        for (var i = 0; i < this._width; i++) {
+        for (var i = 0; i < this.width; i++) {
             this.map[i] = [];
         }
         for (var i = 0; i < imageData.length; i += 4) {
-            var color_1 = "#" +
+            var color = "#" +
                 Util.int2hex(imageData[i]) +
                 Util.int2hex(imageData[i + 1]) +
                 Util.int2hex(imageData[i + 2]);
-            if (color_1 == this.game.getColour(this.game.GRASSCOLOUR)) {
-                x = (i / 4) % this._width;
-                y = Math.floor(i / 4 / this._width);
+            if (color == this.game.getColour(this.game.GRASSCOLOUR)) {
+                var x = (i / 4) % this.width;
+                var y = Math.floor(i / 4 / this.width);
                 this.map[x][y] = this.game.GRASSTILE;
             }
-            if (color_1 == this.game.getColour(this.game.WATERCOLOUR)) {
-                x = (i / 4) % this._width;
-                y = Math.floor(i / 4 / this._width);
+            if (color == this.game.getColour(this.game.WATERCOLOUR)) {
+                var x = (i / 4) % this.width;
+                var y = Math.floor(i / 4 / this.width);
                 this.map[x][y] = this.game.WATERTILE;
             }
         }
-        console.log("map size", this._width, this._height);
+        console.log("map size", this.width, this.height);
         this.createColonies();
     }
     //Check whether x and y are in board's bounds.
     Board.prototype.isInBounds = function (x, y) {
         //console.log("is in bounds", x, y, this._width, this._height, x >= 0 && x < this._width && y >= 0 && y < this._height);
-        return x >= 0 && x < this._width && y >= 0 && y < this._height;
+        return x >= 0 && x < this.width && y >= 0 && y < this.height;
     };
     //Returns object at (x, y).
     Board.prototype.getObj = function (x, y) {
@@ -140,8 +125,8 @@ var Board = /** @class */ (function () {
         var x, y, offset = 10, x2, y2, test;
         for (var i = 0; i < this.coloniesNumber; i++) {
             while (true) {
-                x = Util.randomInt(0, this._width - 1);
-                y = Util.randomInt(0, this._height - 1);
+                x = Util.randomInt(0, this.width - 1);
+                y = Util.randomInt(0, this.height - 1);
                 if (this.map[x][y].colour == this.game.GRASSCOLOUR) {
                     break;
                 }
@@ -171,8 +156,8 @@ var Board = /** @class */ (function () {
 }());
 //Tile
 var Tile = /** @class */ (function () {
-    function Tile(colour) {
-        this._colour = colour;
+    function Tile(_colour) {
+        this._colour = _colour;
     }
     Object.defineProperty(Tile.prototype, "colour", {
         get: function () {
@@ -332,9 +317,9 @@ var Game = /** @class */ (function () {
         this.coloniesNumber = coloniesNumber;
         if (allowGWColours) {
             /*
-                  this.GRASSCOLOUR = grassColour;
-                  this.WATERCOLOUR = waterColour;
-                  */
+            this.GRASSCOLOUR = grassColour;
+            this.WATERCOLOUR = waterColour;
+          */
         }
         this.GRASSTILE = new Tile(this.GRASSCOLOUR);
         this.WATERTILE = new Tile(this.WATERCOLOUR);
@@ -351,12 +336,12 @@ var Game = /** @class */ (function () {
         this.canvas.width = this.image.width;
         this.canvas.height = this.image.height;
         /*
-            if (this.canvas.height > this.canvas.width) {
-                this.canvas.style.height = "75%";
-            } else {
-                this.canvas.style.width = "75%";
-            }
-            */
+          if (this.canvas.height > this.canvas.width) {
+            this.canvas.style.height = "75%";
+          } else {
+            this.canvas.style.width = "75%";
+          }
+        */
         this.canvas.getContext("2d").drawImage(this.image, 0, 0);
         for (var i = 0; i < this.coloniesNumber; i++) {
             this.colonies[i] = [];
@@ -368,7 +353,7 @@ var Game = /** @class */ (function () {
             this.htmlConnector.h_statisticsPanel.innerHTML +=
                 '<span style="color:' + this.colours[i] + '"></span><br/>';
         }
-        this.coloniesLabels = this.htmlConnector.h_statisticsPanel.getElementsByTagName("span");
+        this.coloniesLabels = this.htmlConnector.h_statisticsPanel.querySelectorAll("span");
     };
     Game.prototype.play = function () {
         this.lastTime = Date.now();
@@ -386,7 +371,7 @@ var Game = /** @class */ (function () {
                         ": " +
                         this.colonies[i].length +
                         " Avg Vit : " +
-                        Util.avarage(this.colonies[i]).toFixed(2) +
+                        Util.average(this.colonies[i]).toFixed(2) +
                         " Max Vit: " +
                         Util.maxVitality(this.colonies[i]).toFixed(2) +
                         "</del>";
@@ -399,7 +384,7 @@ var Game = /** @class */ (function () {
                     ": " +
                     this.colonies[i].length +
                     " Avg Vit : " +
-                    Util.avarage(this.colonies[i]).toFixed(2) +
+                    Util.average(this.colonies[i]).toFixed(2) +
                     " Max Vit: " +
                     Util.maxVitality(this.colonies[i]).toFixed(2);
         }
@@ -439,9 +424,9 @@ var HTMLConnector = /** @class */ (function () {
         this.h_ageLabel = document.querySelector("#age");
         this.h_fpsLabel = document.querySelector("#fps");
         this.h_mapSelect = document.querySelector("#level_map");
-        this.h_number_of_colonies = (document.querySelector("#number_of_colonies"));
-        this.h_time_interval = (document.querySelector("#time_interval"));
-        this.h_reproductive_threshold = (document.querySelector("#reproductive_threshold"));
+        this.h_number_of_colonies = document.querySelector("#number_of_colonies");
+        this.h_time_interval = document.querySelector("#time_interval");
+        this.h_reproductive_threshold = document.querySelector("#reproductive_threshold");
         this.h_add_map = document.querySelector("#add_map");
         //this.h_canvas.getContext('2d').webkitImageSmoothingEnabled = false;
         //this.h_canvas.getContext('2d').mozImageSmoothingEnabled = false;
@@ -453,22 +438,22 @@ var HTMLConnector = /** @class */ (function () {
         if (this.game != null) {
             this.game.stop();
         }
-        this.game = new Game(this, this.h_canvas, (this.h_mapSelect.options[this.h_mapSelect.selectedIndex]).value, parseInt(this.h_number_of_colonies.value), parseInt(this.h_time_interval.value), parseInt(this.h_reproductive_threshold.value));
+        this.game = new Game(this, this.h_canvas, this.h_mapSelect.options[this.h_mapSelect.selectedIndex].value, parseInt(this.h_number_of_colonies.value), parseInt(this.h_time_interval.value), parseInt(this.h_reproductive_threshold.value));
     };
     HTMLConnector.prototype.getPreview = function () {
-        var canv = (document.querySelector("canvas.preview"));
+        var canvas = document.querySelector("canvas.preview");
         var image = new Image();
         image.onload = function () {
-            canv.width = image.width;
-            canv.height = image.height;
-            canv.getContext("2d").drawImage(image, 0, 0);
+            canvas.width = image.width;
+            canvas.height = image.height;
+            canvas.getContext("2d").drawImage(image, 0, 0);
             //let imageData: ImageData = new ImageData(Util.maxSaturation(canv.getContext('2d').getImageData(0, 0, image.width, image.height).data),image.width, image.height);
             //canv.getContext('2d').putImageData(imageData, 0, 0);
         };
         image.onerror = function () {
             window.alert("loading preview failed");
         };
-        image.src = (this.h_mapSelect.options[this.h_mapSelect.selectedIndex]).value;
+        image.src = this.h_mapSelect.options[this.h_mapSelect.selectedIndex].value;
     };
     //Update map list after uploading new map.
     HTMLConnector.prototype.updateMapList = function () {
@@ -481,31 +466,33 @@ var HTMLConnector = /** @class */ (function () {
     };
     //Allow grass and water colours changing.
     HTMLConnector.prototype.allowGWColourChanging = function () {
-        var canv = (document.querySelector("canvas.preview"));
+        var canvas = document.querySelector("canvas.preview");
         if (this.land_water_colours) {
             this.land_water_colours = false;
             document.querySelector(".colorGWpick").style.display =
                 "none";
-            canv.removeEventListener("mousemove", this.pick);
+            canvas.removeEventListener("mousemove", this.pick);
         }
         else {
             this.land_water_colours = true;
             document.querySelector(".colorGWpick").style.display =
                 "block";
-            canv.addEventListener("mousemove", this.pick);
+            canvas.addEventListener("mousemove", this.pick);
         }
     };
     //Pick colours.
     HTMLConnector.prototype.pick = function (event) {
         var x = event.layerX;
         var y = event.layerY;
-        var pixel = event.target.getContext("2d").getImageData(x, y, 1, 1);
+        var pixel = event.target
+            .getContext("2d")
+            .getImageData(x, y, 1, 1);
         var data = pixel.data;
         var hex = "#" +
             Util.int2hex(data[0]) +
             Util.int2hex(data[1]) +
             Util.int2hex(data[2]);
-        (document.querySelector(".colorGWpick")).style.background = hex;
+        document.querySelector(".colorGWpick").style.background = hex;
         document.querySelector(".colorGWpick").textContent = hex;
     };
     return HTMLConnector;

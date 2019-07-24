@@ -1,23 +1,23 @@
 //Utilities
 class Util {
   //Random int between min inclusive and max exclusive.
-  static randomInt(min, max) {
+  static randomInt(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
   //Change rgb int to rgb hexadecimal string.
-  static rgb2hex(num: number) {
+  static rgb2hex(num: number): string {
     let s: string = "000000" + num.toString(16);
     return "#" + s.substr(s.length - 6);
   }
 
-  static int2hex(num: number) {
+  static int2hex(num: number): string {
     let s: string = "00" + num.toString(16);
     return s.substr(s.length - 2);
   }
 
   //Average vitality of Person in colony.
-  static avarage(numbers: Person[]): number {
+  static average(numbers: Person[]): number {
     let sum: number = 0;
     for (let i: number = 0; i < numbers.length; i++) {
       sum += numbers[i].vitality;
@@ -36,20 +36,10 @@ class Util {
     return max;
   }
 
-  static maxNumber(...args: number[]) {
-    let max: number = 0;
-    for (let arg of args) {
-      if (arg > max) {
-        max = arg;
-      }
-    }
-    return max;
-  }
-
-  static maxSaturation(imageData): Uint8ClampedArray {
+  static maxSaturation(imageData: Uint8ClampedArray): Uint8ClampedArray {
     let temp: number;
     for (let i: number = 0; i < imageData.length; i += 4) {
-      temp = Util.maxNumber(imageData[i], imageData[i + 1], imageData[i + 2]);
+      temp = Math.max(imageData[i], imageData[i + 1], imageData[i + 2]);
       for (let j: number = 0; j < 3; j++) {
         if (imageData[i + j] == temp) {
           imageData[i + j] = 255;
@@ -65,27 +55,26 @@ class Util {
 //Board
 class Board {
   private canvas: HTMLCanvasElement;
-  private context;
+  private context: CanvasRenderingContext2D;
   private map: (Tile)[][];
-  private _height: number;
-  private _width: number;
-  private coloniesNumber;
+  private height: number;
+  private width: number;
+  private coloniesNumber: number;
   private game: Game;
 
   constructor(game: Game, canvas: HTMLCanvasElement, coloniesNumber: number) {
     this.coloniesNumber = coloniesNumber;
     this.game = game;
     this.canvas = canvas;
-    this._height = canvas.height;
-    this._width = canvas.width;
+    this.height = canvas.height;
+    this.width = canvas.width;
     this.context = canvas.getContext("2d");
-    let imageData = this.context.getImageData(0, 0, this._width, this._height)
+    let imageData = this.context.getImageData(0, 0, this.width, this.height)
       .data;
 
     //#1a315c
-    let x, y, color;
     this.map = [];
-    for (let i = 0; i < this._width; i++) {
+    for (let i = 0; i < this.width; i++) {
       this.map[i] = [];
     }
     for (let i = 0; i < imageData.length; i += 4) {
@@ -95,24 +84,24 @@ class Board {
         Util.int2hex(imageData[i + 1]) +
         Util.int2hex(imageData[i + 2]);
       if (color == this.game.getColour(this.game.GRASSCOLOUR)) {
-        x = (i / 4) % this._width;
-        y = Math.floor(i / 4 / this._width);
+        let x = (i / 4) % this.width;
+        let y = Math.floor(i / 4 / this.width);
         this.map[x][y] = this.game.GRASSTILE;
       }
       if (color == this.game.getColour(this.game.WATERCOLOUR)) {
-        x = (i / 4) % this._width;
-        y = Math.floor(i / 4 / this._width);
+        let x = (i / 4) % this.width;
+        let y = Math.floor(i / 4 / this.width);
         this.map[x][y] = this.game.WATERTILE;
       }
     }
-    console.log("map size", this._width, this._height);
+    console.log("map size", this.width, this.height);
     this.createColonies();
   }
 
   //Check whether x and y are in board's bounds.
   isInBounds(x: number, y: number): boolean {
     //console.log("is in bounds", x, y, this._width, this._height, x >= 0 && x < this._width && y >= 0 && y < this._height);
-    return x >= 0 && x < this._width && y >= 0 && y < this._height;
+    return x >= 0 && x < this.width && y >= 0 && y < this.height;
   }
 
   //Returns object at (x, y).
@@ -130,12 +119,12 @@ class Board {
 
   //Kills Person at position.
   killPerson(x: number, y: number, killer: Person): void {
-    (<Person>this.map[x][y]).kill();
+    (this.map[x][y] as Person).kill();
     this.setObj(x, y, killer);
   }
 
   //Create colonies.
-  createColonies() {
+  createColonies(): void {
     let x,
       y,
       offset = 10,
@@ -144,8 +133,8 @@ class Board {
       test;
     for (let i: number = 0; i < this.coloniesNumber; i++) {
       while (true) {
-        x = Util.randomInt(0, this._width - 1);
-        y = Util.randomInt(0, this._height - 1);
+        x = Util.randomInt(0, this.width - 1);
+        y = Util.randomInt(0, this.height - 1);
         if (this.map[x][y].colour == this.game.GRASSCOLOUR) {
           break;
         }
@@ -188,11 +177,7 @@ class Board {
 
 //Tile
 class Tile {
-  protected _colour: number;
-
-  constructor(colour: number) {
-    this._colour = colour;
-  }
+  constructor(protected _colour: number) {}
 
   get colour(): number {
     return this._colour;
@@ -207,10 +192,10 @@ class Tile {
 class Person extends Tile {
   private x: number;
   private y: number;
-  private dead: boolean = false;
+  private dead = false;
   private age: number;
   private reproductionValue: number;
-  private diseased: boolean = false;
+  private diseased = false;
   private _vitality: number;
   private map: Board;
   private game: Game;
@@ -220,10 +205,10 @@ class Person extends Tile {
     map: Board,
     x: number,
     y: number,
-    age: number = 0,
-    reproductionValue: number = 0,
-    colour: number = 0,
-    vitality: number = Util.randomInt(20, 70)
+    age = 0,
+    reproductionValue = 0,
+    colour = 0,
+    vitality = Util.randomInt(20, 70)
   ) {
     super(colour);
     this.game = game;
@@ -291,7 +276,7 @@ class Person extends Tile {
       default:
         if (
           this._vitality >=
-          (<Person>this.map.getObj(this.x + x, this.y + y))._vitality
+          (this.map.getObj(this.x + x, this.y + y) as Person)._vitality
         ) {
           this.map.setObj(this.x, this.y, this.game.GRASSTILE);
           this.reproduce();
@@ -344,8 +329,8 @@ class Person extends Tile {
 }
 
 class Game {
-  ageCount: number = 0;
-  colours: string[] = [
+  ageCount = 0;
+  colours = [
     "#ffff00",
     "#ff00ff",
     "#ff0000",
@@ -361,7 +346,7 @@ class Game {
   ];
   //coloniesColours = [Colours.YELLOW, Colours.MAGENTA, Colours.RED, Colours.PURPLE];
   coloniesColours: number = this.colours.length - 2;
-  colonies: Array<Person[]> = [];
+  colonies: Person[][] = [];
 
   coloniesNumber: number;
 
@@ -373,20 +358,20 @@ class Game {
 
   reproductiveThreshold: number;
 
-  intervalPointer;
+  intervalPointer: number;
 
   htmlConnector: HTMLConnector;
   image = new Image();
   map: Board;
   canvas: HTMLCanvasElement;
 
-  coloniesLabels;
+  coloniesLabels: NodeListOf<HTMLSpanElement>;
 
   peopleCount = 0;
 
   speed: number;
 
-  lastTime;
+  lastTime: number;
 
   timer = 0;
 
@@ -396,10 +381,10 @@ class Game {
     image: string,
     coloniesNumber: number,
     speed: number,
-    reproductive_threshold,
+    reproductive_threshold: number,
     allowGWColours: boolean = false,
-    grassColour: string = "",
-    waterColour: string = ""
+    grassColour = "",
+    waterColour = ""
   ) {
     this.htmlConnector = htmlConnector;
     this.canvas = canvas;
@@ -407,9 +392,9 @@ class Game {
     this.coloniesNumber = coloniesNumber;
     if (allowGWColours) {
       /*
-            this.GRASSCOLOUR = grassColour;
-            this.WATERCOLOUR = waterColour;
-            */
+      this.GRASSCOLOUR = grassColour;
+      this.WATERCOLOUR = waterColour;
+    */
     }
     this.GRASSTILE = new Tile(this.GRASSCOLOUR);
     this.WATERTILE = new Tile(this.WATERCOLOUR);
@@ -427,19 +412,19 @@ class Game {
     this.canvas.width = this.image.width;
     this.canvas.height = this.image.height;
     /*
-        if (this.canvas.height > this.canvas.width) {
-            this.canvas.style.height = "75%";
-        } else {
-            this.canvas.style.width = "75%";
-        }
-        */
+      if (this.canvas.height > this.canvas.width) {
+        this.canvas.style.height = "75%";
+      } else {
+        this.canvas.style.width = "75%";
+      }
+    */
     this.canvas.getContext("2d").drawImage(this.image, 0, 0);
     for (let i: number = 0; i < this.coloniesNumber; i++) {
       this.colonies[i] = [];
     }
     this.map = new Board(
       this,
-      <HTMLCanvasElement>this.canvas,
+      this.canvas as HTMLCanvasElement,
       this.coloniesNumber
     );
     this.intervalPointer = setInterval(this.play.bind(this), this.speed);
@@ -448,7 +433,7 @@ class Game {
       this.htmlConnector.h_statisticsPanel.innerHTML +=
         '<span style="color:' + this.colours[i] + '"></span><br/>';
     }
-    this.coloniesLabels = this.htmlConnector.h_statisticsPanel.getElementsByTagName(
+    this.coloniesLabels = this.htmlConnector.h_statisticsPanel.querySelectorAll(
       "span"
     );
   }
@@ -469,7 +454,7 @@ class Game {
           ": " +
           this.colonies[i].length +
           " Avg Vit : " +
-          Util.avarage(this.colonies[i]).toFixed(2) +
+          Util.average(this.colonies[i]).toFixed(2) +
           " Max Vit: " +
           Util.maxVitality(this.colonies[i]).toFixed(2) +
           "</del>";
@@ -482,7 +467,7 @@ class Game {
         ": " +
         this.colonies[i].length +
         " Avg Vit : " +
-        Util.avarage(this.colonies[i]).toFixed(2) +
+        Util.average(this.colonies[i]).toFixed(2) +
         " Max Vit: " +
         Util.maxVitality(this.colonies[i]).toFixed(2);
     }
@@ -533,21 +518,17 @@ class HTMLConnector {
   land_water_colours: boolean = false;
 
   constructor() {
-    this.h_canvas = <HTMLCanvasElement>document.getElementById("canvas");
+    this.h_canvas = document.getElementById("canvas") as HTMLCanvasElement;
     this.h_statisticsPanel = document.getElementById("test");
-    this.h_ageLabel = <HTMLElement>document.querySelector("#age");
-    this.h_fpsLabel = <HTMLElement>document.querySelector("#fps");
-    this.h_mapSelect = <HTMLSelectElement>document.querySelector("#level_map");
-    this.h_number_of_colonies = <HTMLInputElement>(
-      document.querySelector("#number_of_colonies")
+    this.h_ageLabel = document.querySelector("#age");
+    this.h_fpsLabel = document.querySelector("#fps");
+    this.h_mapSelect = document.querySelector("#level_map");
+    this.h_number_of_colonies = document.querySelector("#number_of_colonies");
+    this.h_time_interval = document.querySelector("#time_interval");
+    this.h_reproductive_threshold = document.querySelector(
+      "#reproductive_threshold"
     );
-    this.h_time_interval = <HTMLInputElement>(
-      document.querySelector("#time_interval")
-    );
-    this.h_reproductive_threshold = <HTMLInputElement>(
-      document.querySelector("#reproductive_threshold")
-    );
-    this.h_add_map = <HTMLInputElement>document.querySelector("#add_map");
+    this.h_add_map = document.querySelector("#add_map");
     //this.h_canvas.getContext('2d').webkitImageSmoothingEnabled = false;
     //this.h_canvas.getContext('2d').mozImageSmoothingEnabled = false;
     //this.h_canvas.getContext('2d').imageSmoothingEnabled = false; /// future
@@ -562,33 +543,31 @@ class HTMLConnector {
     this.game = new Game(
       this,
       this.h_canvas,
-      (<HTMLOptionElement>(
-        this.h_mapSelect.options[this.h_mapSelect.selectedIndex]
-      )).value,
+      (this.h_mapSelect.options[
+        this.h_mapSelect.selectedIndex
+      ] as HTMLOptionElement).value,
       parseInt(this.h_number_of_colonies.value),
       parseInt(this.h_time_interval.value),
       parseInt(this.h_reproductive_threshold.value)
     );
   }
 
-  getPreview() {
-    let canv: HTMLCanvasElement = <HTMLCanvasElement>(
-      document.querySelector("canvas.preview")
-    );
+  getPreview(): void {
+    let canvas: HTMLCanvasElement = document.querySelector("canvas.preview");
     let image: HTMLImageElement = new Image();
     image.onload = () => {
-      canv.width = image.width;
-      canv.height = image.height;
-      canv.getContext("2d").drawImage(image, 0, 0);
+      canvas.width = image.width;
+      canvas.height = image.height;
+      canvas.getContext("2d").drawImage(image, 0, 0);
       //let imageData: ImageData = new ImageData(Util.maxSaturation(canv.getContext('2d').getImageData(0, 0, image.width, image.height).data),image.width, image.height);
       //canv.getContext('2d').putImageData(imageData, 0, 0);
     };
     image.onerror = () => {
       window.alert("loading preview failed");
     };
-    image.src = (<HTMLOptionElement>(
-      this.h_mapSelect.options[this.h_mapSelect.selectedIndex]
-    )).value;
+    image.src = (this.h_mapSelect.options[
+      this.h_mapSelect.selectedIndex
+    ] as HTMLOptionElement).value;
   }
 
   //Update map list after uploading new map.
@@ -603,37 +582,37 @@ class HTMLConnector {
 
   //Allow grass and water colours changing.
   allowGWColourChanging(): void {
-    let canv: HTMLCanvasElement = <HTMLCanvasElement>(
-      document.querySelector("canvas.preview")
-    );
+    let canvas: HTMLCanvasElement = document.querySelector("canvas.preview");
     if (this.land_water_colours) {
       this.land_water_colours = false;
-      (<HTMLElement>document.querySelector(".colorGWpick")).style.display =
+      (document.querySelector(".colorGWpick") as HTMLElement).style.display =
         "none";
-      canv.removeEventListener("mousemove", this.pick);
+      canvas.removeEventListener("mousemove", this.pick);
     } else {
       this.land_water_colours = true;
-      (<HTMLElement>document.querySelector(".colorGWpick")).style.display =
+      (document.querySelector(".colorGWpick") as HTMLElement).style.display =
         "block";
-      canv.addEventListener("mousemove", this.pick);
+      canvas.addEventListener("mousemove", this.pick);
     }
   }
 
   //Pick colours.
-  pick(event) {
+  pick(event: MouseEvent): void {
     let x = event.layerX;
     let y = event.layerY;
-    let pixel = event.target.getContext("2d").getImageData(x, y, 1, 1);
+    let pixel = (event.target as HTMLCanvasElement)
+      .getContext("2d")
+      .getImageData(x, y, 1, 1);
     let data = pixel.data;
     let hex =
       "#" +
       Util.int2hex(data[0]) +
       Util.int2hex(data[1]) +
       Util.int2hex(data[2]);
-    (<HTMLElement>(
-      document.querySelector(".colorGWpick")
-    )).style.background = hex;
-    (<HTMLElement>document.querySelector(".colorGWpick")).textContent = hex;
+    (document.querySelector(
+      ".colorGWpick"
+    ) as HTMLElement).style.background = hex;
+    (document.querySelector(".colorGWpick") as HTMLElement).textContent = hex;
   }
 }
 
