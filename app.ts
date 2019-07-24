@@ -82,15 +82,15 @@ class Board {
         Util.int2hex(imageData[i]) +
         Util.int2hex(imageData[i + 1]) +
         Util.int2hex(imageData[i + 2]);
-      if (color == this.game.getColour(this.game.GRASSCOLOUR)) {
+      if (color == this.game.getColour(this.game.GRASS_COLOUR)) {
         let x = (i / 4) % this.width;
         let y = Math.floor(i / 4 / this.width);
-        this.map[x][y] = this.game.GRASSTILE;
+        this.map[x][y] = this.game.GRASS_TILE;
       }
-      if (color == this.game.getColour(this.game.WATERCOLOUR)) {
+      if (color == this.game.getColour(this.game.WATER_COLOUR)) {
         let x = (i / 4) % this.width;
         let y = Math.floor(i / 4 / this.width);
-        this.map[x][y] = this.game.WATERTILE;
+        this.map[x][y] = this.game.WATER_TILE;
       }
     }
     console.log("map size", this.width, this.height);
@@ -133,7 +133,7 @@ class Board {
       while (true) {
         x = Util.randomInt(0, this.width - 1);
         y = Util.randomInt(0, this.height - 1);
-        if (this.map[x][y].colour == this.game.GRASSCOLOUR) {
+        if (this.map[x][y].colour == this.game.GRASS_COLOUR) {
           break;
         }
       }
@@ -150,7 +150,7 @@ class Board {
           if (test >= 50) {
             break;
           }
-          if (this.map[x2][y2].colour == this.game.GRASSCOLOUR) {
+          if (this.map[x2][y2].colour == this.game.GRASS_COLOUR) {
             this.setObj(
               x2,
               y2,
@@ -252,17 +252,17 @@ class Person extends Tile {
     );
     let tempColour: number =
       this.map.getObj(this.x + x, this.y + y) == null
-        ? this.game.WATERCOLOUR
+        ? this.game.WATER_COLOUR
         : this.map.getObj(this.x + x, this.y + y).colour;
     switch (tempColour) {
-      case this.game.GRASSCOLOUR:
-        this.map.setObj(this.x, this.y, this.game.GRASSTILE);
+      case this.game.GRASS_COLOUR:
+        this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
         this.reproduce();
         this.x += x;
         this.y += y;
         this.map.setObj(this.x, this.y, this);
         break;
-      case this.game.WATERCOLOUR:
+      case this.game.WATER_COLOUR:
         break;
       case this.colour:
         break;
@@ -271,19 +271,19 @@ class Person extends Tile {
           this._vitality >=
           (this.map.getObj(this.x + x, this.y + y) as Person)._vitality
         ) {
-          this.map.setObj(this.x, this.y, this.game.GRASSTILE);
+          this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
           this.reproduce();
           this.x += x;
           this.y += y;
           this.map.killPerson(this.x, this.y, this);
         } else {
-          this.map.setObj(this.x, this.y, this.game.GRASSTILE);
+          this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
           this.kill();
         }
         break;
     }
     if (this.shouldDie()) {
-      this.map.setObj(this.x, this.y, this.game.GRASSTILE);
+      this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
       this.kill();
     }
   }
@@ -342,11 +342,11 @@ class Game {
 
   coloniesNumber: number;
 
-  GRASSCOLOUR = this.colours.length - 2;
-  WATERCOLOUR = this.colours.length - 1;
+  GRASS_COLOUR = this.colours.length - 2;
+  WATER_COLOUR = this.colours.length - 1;
 
-  GRASSTILE: Tile;
-  WATERTILE: Tile;
+  GRASS_TILE: Tile;
+  WATER_TILE: Tile;
 
   reproductiveThreshold: number;
 
@@ -382,8 +382,8 @@ class Game {
     this.canvas = canvas;
     this.speed = speed;
     this.coloniesNumber = coloniesNumber;
-    this.GRASSTILE = new Tile(this.GRASSCOLOUR);
-    this.WATERTILE = new Tile(this.WATERCOLOUR);
+    this.GRASS_TILE = new Tile(this.GRASS_COLOUR);
+    this.WATER_TILE = new Tile(this.WATER_COLOUR);
     this.reproductiveThreshold = reproductive_threshold;
     this.image.onload = () => {
       this.setup();
@@ -565,12 +565,12 @@ class HTMLConnector {
     let canvas: HTMLCanvasElement = document.querySelector("canvas.preview");
     if (this.land_water_colours) {
       this.land_water_colours = false;
-      (document.querySelector(".colorGWpick") as HTMLElement).style.display =
+      (document.querySelector(".colorGWPick") as HTMLElement).style.display =
         "none";
       canvas.removeEventListener("mousemove", this.pick);
     } else {
       this.land_water_colours = true;
-      (document.querySelector(".colorGWpick") as HTMLElement).style.display =
+      (document.querySelector(".colorGWPick") as HTMLElement).style.display =
         "block";
       canvas.addEventListener("mousemove", this.pick);
     }
@@ -590,9 +590,9 @@ class HTMLConnector {
       Util.int2hex(data[1]) +
       Util.int2hex(data[2]);
     (document.querySelector(
-      ".colorGWpick"
+      ".colorGWPick"
     ) as HTMLElement).style.background = hex;
-    (document.querySelector(".colorGWpick") as HTMLElement).textContent = hex;
+    (document.querySelector(".colorGWPick") as HTMLElement).textContent = hex;
   }
 }
 
