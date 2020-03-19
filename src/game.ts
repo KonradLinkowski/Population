@@ -100,7 +100,7 @@ export default class Game {
     this.htmlConnector.$statisticsPanel.innerHTML = "";
     for (let i: number = 0; i < this.coloniesNumber; i++) {
       this.htmlConnector.$statisticsPanel.innerHTML +=
-        '<span style="color:' + this.colours[i] + '"></span><br/>';
+        '<span style="color:' + this.colours[i] + '"></span><br>';
     }
     this.coloniesLabels = this.htmlConnector.$statisticsPanel.querySelectorAll(
       "span",

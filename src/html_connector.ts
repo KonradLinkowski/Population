@@ -12,6 +12,8 @@ export default class HTMLConnector {
   public $timeInterval: HTMLInputElement;
   public $reproductiveThreshold: HTMLInputElement;
   public $addMap: HTMLInputElement;
+  public $startGame: HTMLButtonElement;
+  public $allowGWChanging: HTMLButtonElement;
 
   public landWaterColours: boolean = false;
 
@@ -21,12 +23,28 @@ export default class HTMLConnector {
     this.$ageLabel = document.querySelector("#age");
     this.$fpsLabel = document.querySelector("#fps");
     this.$mapSelect = document.querySelector("#level_map");
+    this.$mapSelect.addEventListener("change", () => {
+      this.getPreview();
+    });
     this.$numberOfColonies = document.querySelector("#number_of_colonies");
     this.$timeInterval = document.querySelector("#time_interval");
     this.$reproductiveThreshold = document.querySelector(
       "#reproductive_threshold",
     );
     this.$addMap = document.querySelector("#add_map");
+    this.$addMap.addEventListener("change", () => {
+      this.updateMapList();
+    });
+    this.$startGame = document.querySelector("#start_game");
+    this.$startGame.addEventListener("click", () => {
+      this.startGame();
+    });
+
+    this.$allowGWChanging = document.querySelector("#allow_gw_colours");
+    this.$allowGWChanging.addEventListener("click", () => {
+      this.allowGWColourChanging();
+    });
+
     this.getPreview();
   }
 

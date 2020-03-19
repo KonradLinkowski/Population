@@ -2,9 +2,13 @@
 
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="icon.png" type="image/png" sizes="16x16" />
+    <meta charset="utf-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
+    <meta property="og:image" content="https://konradlinkowski.github.io/Population/screen.png" >
+    <meta property="og:type" content="website" >
+    <meta property="og:title" content="Population" >
+    <meta property="og:description" content="Population - Almost* perfect life simulation" >
+    <link rel="icon" href="icon.png" type="image/png" sizes="16x16" >
     <title>Population</title>
     <!-- Global Site Tag (gtag.js) - Google Analytics -->
     <script
@@ -21,7 +25,7 @@
       gtag("config", "UA-107260387-1");
     </script>
     <script src="../src/app.ts"></script>
-    <link rel="stylesheet" href="app.css" type="text/css" />
+    <link rel="stylesheet" href="app.css" type="text/css" >
   </head>
   <body>
     <header>
@@ -39,7 +43,7 @@
     <section id="configure" class="no-float">
       <div>
         <h3>Configuration</h3>
-        <form action="javascript:htCon.startGame();">
+        <div>
           <label>
             Time interval in ms:
             <input
@@ -49,7 +53,7 @@
               min="0"
               max="60000"
               required
-            />
+            >
           </label>
           <label>
             Number of colonies:
@@ -60,7 +64,7 @@
               min="1"
               max="10"
               required
-            />
+            >
           </label>
           <label>
             Reproductive threshold:
@@ -71,7 +75,7 @@
               min="0"
               max="40"
               required
-            />
+            >
           </label>
           <label>
             Add own map:
@@ -79,12 +83,11 @@
               id="add_map"
               type="file"
               accept=".png"
-              onchange="htCon.updateMapList()"
-            />
+            >
           </label>
           <label>
             Map:
-            <select id="level_map" onchange="htCon.getPreview()">
+            <select id="level_map">
               <option value="images/europe5.png">Europe 5</option>
               <option value="images/europe.png">Europe</option>
               <option value="images/europe2.png">Europe 2</option>
@@ -104,24 +107,23 @@
           <label>
             Set own grass and water colours(experimental):
             <input
-              id="own_gw_colours"
+              id="allow_gw_colours"
               type="checkbox"
               value="Yes?"
-              onchange="htCon.allowGWColourChanging()"
-            />
+            >
           </label>
           <div class="colorGWPick" style="display:none">
             <label>
               Grass colour:
-              <input type="color" />
+              <input type="color" >
             </label>
             <label>
               Water colour:
-              <input type="color" />
+              <input type="color" >
             </label>
           </div>
-          <input type="submit" value="Start" />
-        </form>
+          <button id="start_game">Start</button>
+        </div>
       </div>
       <div class="center-everything">
         <h3>Repository</h3>
