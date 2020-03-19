@@ -1,4 +1,4 @@
-import HTMLConnector from './html_connector'
+import HTMLConnector from "./html_connector";
 
 window.onload = () => {
   const htCon = new HTMLConnector();

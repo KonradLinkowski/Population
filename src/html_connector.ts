@@ -1,55 +1,55 @@
-import Util from './util';
-import Game from './game';
+import Game from "./game";
+import Util from "./util";
 
 export default class HTMLConnector {
-  game: Game;
-  h_canvas: HTMLCanvasElement;
-  h_statisticsPanel: HTMLElement;
-  h_ageLabel: HTMLElement;
-  h_fpsLabel: HTMLElement;
-  h_mapSelect: HTMLSelectElement;
-  h_number_of_colonies: HTMLInputElement;
-  h_time_interval: HTMLInputElement;
-  h_reproductive_threshold: HTMLInputElement;
-  h_add_map: HTMLInputElement;
+  public game: Game;
+  public $canvas: HTMLCanvasElement;
+  public $statisticsPanel: HTMLElement;
+  public $ageLabel: HTMLElement;
+  public $fpsLabel: HTMLElement;
+  public $mapSelect: HTMLSelectElement;
+  public $numberOfColonies: HTMLInputElement;
+  public $timeInterval: HTMLInputElement;
+  public $reproductiveThreshold: HTMLInputElement;
+  public $addMap: HTMLInputElement;
 
-  land_water_colours: boolean = false;
+  public landWaterColours: boolean = false;
 
   constructor() {
-    this.h_canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    this.h_statisticsPanel = document.getElementById("test");
-    this.h_ageLabel = document.querySelector("#age");
-    this.h_fpsLabel = document.querySelector("#fps");
-    this.h_mapSelect = document.querySelector("#level_map");
-    this.h_number_of_colonies = document.querySelector("#number_of_colonies");
-    this.h_time_interval = document.querySelector("#time_interval");
-    this.h_reproductive_threshold = document.querySelector(
-      "#reproductive_threshold"
+    this.$canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    this.$statisticsPanel = document.getElementById("test");
+    this.$ageLabel = document.querySelector("#age");
+    this.$fpsLabel = document.querySelector("#fps");
+    this.$mapSelect = document.querySelector("#level_map");
+    this.$numberOfColonies = document.querySelector("#number_of_colonies");
+    this.$timeInterval = document.querySelector("#time_interval");
+    this.$reproductiveThreshold = document.querySelector(
+      "#reproductive_threshold",
     );
-    this.h_add_map = document.querySelector("#add_map");
+    this.$addMap = document.querySelector("#add_map");
     this.getPreview();
   }
 
-  //Start Game.
-  startGame() {
-    if (this.game != null) {
+  // Start Game.
+  public startGame() {
+    if (this.game) {
       this.game.stop();
     }
     this.game = new Game(
       this,
-      this.h_canvas,
-      (this.h_mapSelect.options[
-        this.h_mapSelect.selectedIndex
+      this.$canvas,
+      (this.$mapSelect.options[
+        this.$mapSelect.selectedIndex
       ] as HTMLOptionElement).value,
-      parseInt(this.h_number_of_colonies.value),
-      parseInt(this.h_time_interval.value),
-      parseInt(this.h_reproductive_threshold.value)
+      parseInt(this.$numberOfColonies.value, 10),
+      parseInt(this.$timeInterval.value, 10),
+      parseInt(this.$reproductiveThreshold.value, 10),
     );
   }
 
-  getPreview(): void {
-    let canvas: HTMLCanvasElement = document.querySelector("canvas.preview");
-    let image: HTMLImageElement = new Image();
+  public getPreview(): void {
+    const canvas: HTMLCanvasElement = document.querySelector("canvas.preview");
+    const image: HTMLImageElement = new Image();
     image.onload = () => {
       canvas.width = image.width;
       canvas.height = image.height;
@@ -58,52 +58,52 @@ export default class HTMLConnector {
     image.onerror = () => {
       window.alert("loading preview failed");
     };
-    image.src = (this.h_mapSelect.options[
-      this.h_mapSelect.selectedIndex
+    image.src = (this.$mapSelect.options[
+      this.$mapSelect.selectedIndex
     ] as HTMLOptionElement).value;
   }
 
-  //Update map list after uploading new map.
-  updateMapList(): void {
-    this.h_mapSelect.innerHTML +=
+  // Update map list after uploading new map.
+  public updateMapList(): void {
+    this.$mapSelect.innerHTML +=
       '<option value="' +
-      window.URL.createObjectURL(this.h_add_map.files[0]) +
+      window.URL.createObjectURL(this.$addMap.files[0]) +
       '" >' +
-      this.h_add_map.files[0].name +
+      this.$addMap.files[0].name +
       "</option>";
   }
 
-  //Allow grass and water colours changing.
-  allowGWColourChanging(): void {
-    let canvas: HTMLCanvasElement = document.querySelector("canvas.preview");
-    if (this.land_water_colours) {
-      this.land_water_colours = false;
+  // Allow grass and water colours changing.
+  public allowGWColourChanging(): void {
+    const canvas: HTMLCanvasElement = document.querySelector("canvas.preview");
+    if (this.landWaterColours) {
+      this.landWaterColours = false;
       (document.querySelector(".colorGWPick") as HTMLElement).style.display =
         "none";
       canvas.removeEventListener("mousemove", this.pick);
     } else {
-      this.land_water_colours = true;
+      this.landWaterColours = true;
       (document.querySelector(".colorGWPick") as HTMLElement).style.display =
         "block";
       canvas.addEventListener("mousemove", this.pick);
     }
   }
 
-  //Pick colours.
-  pick(event: MouseEvent): void {
-    let x = event.clientX;
-    let y = event.clientY;
-    let pixel = (event.target as HTMLCanvasElement)
+  // Pick colours.
+  public pick(event: MouseEvent): void {
+    const x = event.clientX;
+    const y = event.clientY;
+    const pixel = (event.target as HTMLCanvasElement)
       .getContext("2d")
       .getImageData(x, y, 1, 1);
-    let data = pixel.data;
-    let hex =
+    const data = pixel.data;
+    const hex =
       "#" +
       Util.int2hex(data[0]) +
       Util.int2hex(data[1]) +
       Util.int2hex(data[2]);
     (document.querySelector(
-      ".colorGWPick"
+      ".colorGWPick",
     ) as HTMLElement).style.background = hex;
     (document.querySelector(".colorGWPick") as HTMLElement).textContent = hex;
   }

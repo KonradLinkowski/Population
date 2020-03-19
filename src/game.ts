@@ -1,12 +1,12 @@
-import Tile from './tile';
-import HTMLConnector from './html_connector';
-import Person from './person';
-import Util from './util';
-import Board from './board';
+import Board from "./board";
+import HTMLConnector from "./html_connector";
+import Person from "./person";
+import Tile from "./tile";
+import Util from "./util";
 
 export default class Game {
-  ageCount = 0;
-  colours = [
+  public ageCount = 0;
+  public colours = [
     "#ffff00",
     "#ff00ff",
     "#ff0000",
@@ -18,37 +18,37 @@ export default class Game {
     "#000000",
     "#0088ff",
     "#00ff00",
-    "#0000ff"
+    "#0000ff",
   ];
-  coloniesColours: number = this.colours.length - 2;
-  colonies: Person[][] = [];
+  public coloniesColours: number = this.colours.length - 2;
+  public colonies: Person[][] = [];
 
-  coloniesNumber: number;
+  public coloniesNumber: number;
 
-  GRASS_COLOUR = this.colours.length - 2;
-  WATER_COLOUR = this.colours.length - 1;
+  public GRASS_COLOUR = this.colours.length - 2;
+  public WATER_COLOUR = this.colours.length - 1;
 
-  GRASS_TILE: Tile;
-  WATER_TILE: Tile;
+  public GRASS_TILE: Tile;
+  public WATER_TILE: Tile;
 
-  reproductiveThreshold: number;
+  public reproductiveThreshold: number;
 
-  intervalPointer: number;
+  public intervalPointer: number;
 
-  htmlConnector: HTMLConnector;
-  image = new Image();
-  map: Board;
-  canvas: HTMLCanvasElement;
+  public htmlConnector: HTMLConnector;
+  public image = new Image();
+  public map: Board;
+  public canvas: HTMLCanvasElement;
 
-  coloniesLabels: NodeListOf<HTMLSpanElement>;
+  public coloniesLabels: NodeListOf<HTMLSpanElement>;
 
-  peopleCount = 0;
+  public peopleCount = 0;
 
-  speed: number;
+  public speed: number;
 
-  lastTime: number;
+  public lastTime: number;
 
-  timer = 0;
+  public timer = 0;
 
   constructor(
     htmlConnector: HTMLConnector,
@@ -56,10 +56,10 @@ export default class Game {
     image: string,
     coloniesNumber: number,
     speed: number,
-    reproductive_threshold: number,
+    reproductiveThreshold: number,
     allowGWColours: boolean = false,
     grassColour = "",
-    waterColour = ""
+    waterColour = "",
   ) {
     this.htmlConnector = htmlConnector;
     this.canvas = canvas;
@@ -67,7 +67,7 @@ export default class Game {
     this.coloniesNumber = coloniesNumber;
     this.GRASS_TILE = new Tile(this.GRASS_COLOUR);
     this.WATER_TILE = new Tile(this.WATER_COLOUR);
-    this.reproductiveThreshold = reproductive_threshold;
+    this.reproductiveThreshold = reproductiveThreshold;
     this.image.onload = () => {
       this.setup();
     };
@@ -77,7 +77,7 @@ export default class Game {
     this.image.src = image;
   }
 
-  setup(): void {
+  public setup(): void {
     this.canvas.width = this.image.width;
     this.canvas.height = this.image.height;
     /*
@@ -94,29 +94,29 @@ export default class Game {
     this.map = new Board(
       this,
       this.canvas as HTMLCanvasElement,
-      this.coloniesNumber
+      this.coloniesNumber,
     );
     this.intervalPointer = setInterval(this.play.bind(this), this.speed);
-    this.htmlConnector.h_statisticsPanel.innerHTML = "";
+    this.htmlConnector.$statisticsPanel.innerHTML = "";
     for (let i: number = 0; i < this.coloniesNumber; i++) {
-      this.htmlConnector.h_statisticsPanel.innerHTML +=
+      this.htmlConnector.$statisticsPanel.innerHTML +=
         '<span style="color:' + this.colours[i] + '"></span><br/>';
     }
-    this.coloniesLabels = this.htmlConnector.h_statisticsPanel.querySelectorAll(
-      "span"
+    this.coloniesLabels = this.htmlConnector.$statisticsPanel.querySelectorAll(
+      "span",
     );
   }
 
-  play(): void {
+  public play(): void {
     this.lastTime = Date.now();
     for (let i: number = 0; i < this.coloniesNumber; i++) {
-      if (this.colonies[i] == null) {
+      if (this.colonies[i] === null) {
         continue;
       }
-      for (let j: number = 0; j < this.colonies[i].length; j++) {
-        this.colonies[i][j].move();
+      for (const person of this.colonies[i]) {
+        person.move();
       }
-      if (this.colonies[i].length == 0) {
+      if (this.colonies[i].length === 0) {
         this.coloniesLabels[i].innerHTML =
           "<del>Colony " +
           (i + 1) +
@@ -140,33 +140,33 @@ export default class Game {
         " Max Vit: " +
         Util.maxVitality(this.colonies[i]).toFixed(2);
     }
-    this.htmlConnector.h_ageLabel.innerHTML = "Age: " + this.ageCount++;
+    this.htmlConnector.$ageLabel.innerHTML = "Age: " + this.ageCount++;
     this.timer += Date.now() - this.lastTime;
     if (this.timer > 250) {
-      this.htmlConnector.h_fpsLabel.innerHTML =
+      this.htmlConnector.$fpsLabel.innerHTML =
         "FPS: " + (1000 / (Date.now() - this.lastTime)).toFixed(0);
       this.timer = 0;
     }
   }
 
-  getColour(index: number): string {
+  public getColour(index: number): string {
     return this.colours[index];
   }
 
-  colonyPush(obj: Person): void {
+  public colonyPush(obj: Person): void {
     this.colonies[obj.colour].push(obj);
     this.peopleCount++;
   }
 
-  colonyRemove(obj: Person): void {
-    let index = this.colonies[obj.colour].indexOf(obj, 0);
+  public colonyRemove(obj: Person): void {
+    const index = this.colonies[obj.colour].indexOf(obj, 0);
     if (index > -1) {
       this.colonies[obj.colour].splice(index, 1);
     }
     this.peopleCount--;
   }
 
-  stop(): void {
+  public stop(): void {
     clearInterval(this.intervalPointer);
   }
 }

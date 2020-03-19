@@ -1,75 +1,60 @@
-import Util from './util';
-import Tile from './tile'
-import Game from './game'
-import Board from './board'
+import Board from "./board";
+import Game from "./game";
+import Tile from "./tile";
+import Util from "./util";
 
 export default class Person extends Tile {
-  private x: number;
-  private y: number;
   private dead = false;
-  private age: number;
-  private reproductionValue: number;
   private diseased = false;
-  private _vitality: number;
-  private map: Board;
-  private game: Game;
 
   constructor(
-    game: Game,
-    map: Board,
-    x: number,
-    y: number,
-    age = 0,
-    reproductionValue = 0,
-    colour = 0,
-    vitality = Util.randomInt(20, 70)
+    private game: Game,
+    private map: Board,
+    private x: number,
+    private y: number,
+    private age = 0,
+    private reproductionValue = 0,
+    public colour = 0,
+    public vitality = Util.randomInt(20, 70),
   ) {
     super(colour);
-    this.game = game;
-    this.age = age;
-    this.x = x;
-    this.y = y;
-    this.reproductionValue = reproductionValue;
-    this._vitality = vitality;
-    this.map = map;
     this.game.colonyPush(this);
   }
 
-  //Check whether Person should die.
-  shouldDie(): boolean {
-    return this._vitality < this.age;
+  // Check whether Person should die.
+  public shouldDie(): boolean {
+    return this.vitality < this.age;
   }
 
-  //Make Person ill or well.
-  cripple(chance: boolean): void {
-    let howMuch: number;
-    if (Math.random() < 0.5) return;
+  // Make Person ill or well.
+  public cripple(chance: boolean): void {
+    const howMuch = 2; // I don't remember how big number should it be, but it makes linting problems
+    if (Math.random() < 0.5) { return; }
     if (chance && this.diseased) {
-      this._vitality *= howMuch;
+      this.vitality *= howMuch;
       this.diseased = false;
       return;
     }
-    this._vitality /= howMuch;
+    this.vitality /= howMuch;
     this.diseased = true;
   }
 
-  //Person move every age.
+  // Person move every age.
   public move(): void {
     this.age++;
     this.reproductionValue++;
-    //this.cripple(true);
-    let x, y;
+    // this.cripple(true);
+    let x;
+    let y;
     do {
       x = Util.randomInt(-1, 1);
       y = Util.randomInt(-1, 1);
     } while (
       !this.map.isInBounds(this.x + x, this.y + y) &&
-      (x == 0 && y == 0)
+      (x === 0 && y === 0)
     );
-    let tempColour: number =
-      this.map.getObj(this.x + x, this.y + y) == null
-        ? this.game.WATER_COLOUR
-        : this.map.getObj(this.x + x, this.y + y).colour;
+    const obj = this.map.getObj(this.x + x, this.y + y);
+    const tempColour: number = obj ? obj.colour : this.game.WATER_COLOUR;
     switch (tempColour) {
       case this.game.GRASS_COLOUR:
         this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
@@ -84,8 +69,8 @@ export default class Person extends Tile {
         break;
       default:
         if (
-          this._vitality >=
-          (this.map.getObj(this.x + x, this.y + y) as Person)._vitality
+          this.vitality >=
+          (this.map.getObj(this.x + x, this.y + y) as Person).vitality
         ) {
           this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
           this.reproduce();
@@ -104,13 +89,13 @@ export default class Person extends Tile {
     }
   }
 
-  //Reproduction.
-  reproduce(): void {
+  // Reproduction.
+  public reproduce(): void {
     if (this.reproductionValue < this.game.reproductiveThreshold) {
       return;
     }
     this.reproductionValue = 0;
-    let variable: number = Util.randomInt(-5, 5);
+    const variable: number = Util.randomInt(-5, 5);
     this.map.setObj(
       this.x,
       this.y,
@@ -122,17 +107,13 @@ export default class Person extends Tile {
         0,
         Util.randomInt(0, 100),
         this.colour,
-        this._vitality + variable
-      )
+        this.vitality + variable,
+      ),
     );
   }
 
-  kill(): void {
+  public kill(): void {
     this.dead = true;
     this.game.colonyRemove(this);
-  }
-
-  get vitality(): number {
-    return this._vitality;
   }
 }

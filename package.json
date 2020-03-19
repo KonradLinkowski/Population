@@ -8,11 +8,13 @@
   "private": true,
   "scripts": {
     "start": "parcel serve public/index.html",
-    "build": "parcel build public/index.html"
+    "build": "parcel build public/index.html",
+    "lint": "tslint --project tsconfig.json"
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-static-files-copy": "^2.3.1",
+    "tslint": "^6.1.0",
     "typescript": "^3.8.3"
   }
 }
