@@ -302,5 +302,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-public/*.js
-public/*.js.map
+.cache/
+dist/
