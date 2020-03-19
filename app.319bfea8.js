@@ -13,4 +13,4 @@ parcelRequire=function(e,r,t,n){var i,o="function"==typeof parcelRequire&&parcel
 },{"./game":"xKml","./util":"LsF4"}],"swTO":[function(require,module,exports) {
 "use strict";var e=t(require("./html_connector"));function t(e){return e&&e.__esModule?e:{default:e}}window.onload=function(){(new e.default).startGame()};
 },{"./html_connector":"Xxxt"}]},{},["swTO"], null)
-//# sourceMappingURL=/app.319bfea8.js.map
+//# sourceMappingURL=app.319bfea8.js.map
