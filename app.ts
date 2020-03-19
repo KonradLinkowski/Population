@@ -578,8 +578,8 @@ class HTMLConnector {
 
   //Pick colours.
   pick(event: MouseEvent): void {
-    let x = event.layerX;
-    let y = event.layerY;
+    let x = event.clientX;
+    let y = event.clientY;
     let pixel = (event.target as HTMLCanvasElement)
       .getContext("2d")
       .getImageData(x, y, 1, 1);
