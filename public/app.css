@@ -123,3 +123,18 @@ footer {
     margin: 30px auto 30px auto;
   }
 }
+div.input-group-prepend{
+  padding: 0px;
+}
+span.input-group-text{
+  width: 100%;
+}
+
+.input-group{
+  padding: 0;
+}
+#start_game{
+  margin: 0 auto;
+  display: block;
+  width: 200px;
+}
