@@ -73,6 +73,7 @@ section#configure > div {
 
 .center-everything {
   text-align: center;
+  width:500px;
 }
 
 label {
@@ -122,4 +123,85 @@ footer {
     font-size: 2rem;
     margin: 30px auto 30px auto;
   }
+}
+div.input-group-prepend{
+  padding: 0px;
+}
+.input-group-text{
+  width: 200px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: .375rem .75rem;
+  margin-bottom: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  text-align: center;
+  white-space: nowrap;
+  background-color: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: .25rem;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-right:0px;
+}
+
+.input-group{
+  display: flex;
+  padding: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  position: relative;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+#start_game{
+  margin: 0 auto;
+  display: block;
+  width: 200px;
+}
+
+.form-control{
+  display: block;
+  width: 400px;
+  height: calc(1.5em + .75rem + 2px);
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: .25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+}
+
+.btn-success{
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn{
+  font-weight: 400;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.custom-control{
+  display: flex;
 }

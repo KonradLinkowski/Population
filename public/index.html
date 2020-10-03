@@ -41,91 +41,139 @@
       </div>
     </section>
     <section id="configure" class="no-float">
-      <div>
+      <div class="col-xs-12 col-md-3">
         <h3>Configuration</h3>
+        <br>
+        <div class="input-group col-xs-12 col-md-12">
+          <div class="input-group-prepend col-xs-12 col-md-4">
+            <span class="input-group-text">Time interval in ms:</span>
+          </div>
+          <input
+                  id="time_interval"
+                  type="number"
+                  value="10"
+                  min="0"
+                  max="60000"
+                  class="form-control"
+                  aria-label="Default"
+                  aria-describedby="inputGroup-sizing-default"
+                  required
+          >
+        </div>
+        <br>
+        <div class="input-group col-xs-12 col-md-12">
+          <div class="input-group-prepend col-xs-12 col-md-4">
+            <span class="input-group-text">Number of colonies:</span>
+          </div>
+          <input
+                  id="number_of_colonies"
+                  type="number"
+                  value="10"
+                  min="1"
+                  max="10"
+                  class="form-control"
+                  aria-label="Default"
+                  aria-describedby="inputGroup-sizing-default"
+                  required
+          >
+        </div>
+        <br>
+        <div class="input-group col-xs-12 col-md-12">
+          <div class="input-group-prepend col-xs-12 col-md-4">
+            <span class="input-group-text">Reproductive threshold:</span>
+          </div>
+          <input
+                  id="reproductive_threshold"
+                  type="number"
+                  value="5"
+                  min="0"
+                  max="40"
+                  class="form-control"
+                  aria-label="Default"
+                  aria-describedby="inputGroup-sizing-default"
+                  required
+          >
+        </div>
+        <br>
+        <div class="input-group col-xs-12 col-md-12">
+          <div class="input-group-prepend col-xs-12 col-md-4">
+            <span class="input-group-text">Add own map:</span>
+          </div>
+          <input
+                  id="add_map"
+                  type="file"
+                  accept=".png"
+                  class="form-control"
+                  aria-label="Default"
+                  aria-describedby="inputGroup-sizing-default"
+          >
+        </div>
+        <br>
+        <div class="input-group col-xs-12 col-md-12">
+          <div class="input-group-prepend col-xs-12 col-md-4">
+            <span class="input-group-text"> Map:</span>
+          </div>
+          <select id="level_map" class="form-control">
+            <option value="images/europe5.png">Europe 5</option>
+            <option value="images/europe.png">Europe</option>
+            <option value="images/europe2.png">Europe 2</option>
+            <option value="images/europe3.png">Europe 3</option>
+            <option value="images/europe4.png">Europe 4</option>
+            <option value="images/map.png">Map</option>
+            <option value="images/map2.png">Map 2</option>
+            <option value="images/map3.png">Map 3</option>
+            <option value="images/map4.png">Map 4</option>
+            <option value="images/map5.png">Map 5</option>
+          </select>
+        </div>
+
+        <br>
+        <div class="input-group col-xs-12 col-md-12">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="allow_gw_colours">
+            <label class="custom-control-label" for="allow_gw_colours">Set own grass and water colours(experimental):</label>
+          </div>
+        </div>
+
+        <br>
+        <div class="colorGWPick" style="display:none">
+          <div class="input-group col-xs-12 col-md-12">
+            <div class="input-group-prepend col-xs-12 col-md-4">
+              <span class="input-group-text">Grass colour:</span>
+            </div>
+            <input
+                    type="color"
+                    class="form-control"
+                    aria-label="Default"
+                    aria-describedby="inputGroup-sizing-default"
+            >
+          </div>
+          <br>
+          <div class="input-group col-xs-12 col-md-12">
+            <div class="input-group-prepend col-xs-12 col-md-4">
+              <span class="input-group-text">Water colour:</span>
+            </div>
+            <input
+                    type="color"
+                    class="form-control"
+                    aria-label="Default"
+                    aria-describedby="inputGroup-sizing-default"
+            >
+          </div>
+        </div>
+        <br>
         <div>
-          <label>
-            Time interval in ms:
-            <input
-              id="time_interval"
-              type="number"
-              value="10"
-              min="0"
-              max="60000"
-              required
-            >
-          </label>
-          <label>
-            Number of colonies:
-            <input
-              id="number_of_colonies"
-              type="number"
-              value="10"
-              min="1"
-              max="10"
-              required
-            >
-          </label>
-          <label>
-            Reproductive threshold:
-            <input
-              id="reproductive_threshold"
-              type="number"
-              value="5"
-              min="0"
-              max="40"
-              required
-            >
-          </label>
-          <label>
-            Add own map:
-            <input
-              id="add_map"
-              type="file"
-              accept=".png"
-            >
-          </label>
-          <label>
-            Map:
-            <select id="level_map">
-              <option value="images/europe5.png">Europe 5</option>
-              <option value="images/europe.png">Europe</option>
-              <option value="images/europe2.png">Europe 2</option>
-              <option value="images/europe3.png">Europe 3</option>
-              <option value="images/europe4.png">Europe 4</option>
-              <option value="images/map.png">Map</option>
-              <option value="images/map2.png">Map 2</option>
-              <option value="images/map3.png">Map 3</option>
-              <option value="images/map4.png">Map 4</option>
-              <option value="images/map5.png">Map 5</option>
-            </select>
-          </label>
+          <span>Preview:</span>
           <div>
-            <span>Preview:</span>
+
             <canvas class="preview"></canvas>
           </div>
-          <label>
-            Set own grass and water colours(experimental):
-            <input
-              id="allow_gw_colours"
-              type="checkbox"
-              value="Yes?"
-            >
-          </label>
-          <div class="colorGWPick" style="display:none">
-            <label>
-              Grass colour:
-              <input type="color" >
-            </label>
-            <label>
-              Water colour:
-              <input type="color" >
-            </label>
-          </div>
-          <button id="start_game">Start</button>
+          <br>
+          <button id="start_game" class="btn btn-success">Start</button>
         </div>
+
       </div>
-      <div class="center-everything">
+      <div class="center-everything col-xs-12 col-md-3">
         <h3>Repository</h3>
         <a href="https://github.com/KonradLinkowski/Population"
           >KonradLinkowski/Population</a
