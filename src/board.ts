@@ -14,7 +14,7 @@ export default class Board {
   private coloniesNumber: number;
   private game: Game;
   private rgbCache: {
-    [key: string]: RGBColor?
+    [key: string]: RGBColor
   } = {};
 
   constructor(game: Game, canvas: HTMLCanvasElement, coloniesNumber: number) {
@@ -75,7 +75,7 @@ export default class Board {
     this.imageData.data[index + 3] = 255;
   }
 
-  private getRGBColour(index: number): string {
+  private getRGBColour(index: number): RGBColor {
     const color = this.game.getColour(index);
     if (!(color in this.rgbCache)) {
       const match = /#([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])/i.exec(color);

@@ -134,7 +134,7 @@ export default class HTMLConnector {
   }
 
   // Pause/Unpause the game
-  public togglePause(event: MouseEvent): void {
+  public togglePause(): void {
     if (this.game.paused) {
       this.game.unpause();
       this.$pauseButton.innerHTML = "Pause";
