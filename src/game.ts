@@ -50,6 +50,8 @@ export default class Game {
 
   public timer = 0;
 
+  public paused: boolean = false;
+
   constructor(
     htmlConnector: HTMLConnector,
     canvas: HTMLCanvasElement,
@@ -168,5 +170,15 @@ export default class Game {
 
   public stop(): void {
     clearInterval(this.intervalPointer);
+  }
+
+  public pause(): void {
+    this.paused = true;
+    this.stop();
+  }
+
+  public unpause(): void {
+    this.paused = false;
+    this.intervalPointer = setInterval(this.play.bind(this), this.speed);
   }
 }

@@ -14,6 +14,7 @@ export default class HTMLConnector {
   public $addMap: HTMLInputElement;
   public $startGame: HTMLButtonElement;
   public $allowGWChanging: HTMLButtonElement;
+  public $pauseButton: HTMLButtonElement;
 
   public landWaterColours: boolean = false;
 
@@ -38,11 +39,17 @@ export default class HTMLConnector {
     this.$startGame = document.querySelector("#start_game");
     this.$startGame.addEventListener("click", () => {
       this.startGame();
+      this.$pauseButton.innerHTML = "Pause";
     });
 
     this.$allowGWChanging = document.querySelector("#allow_gw_colours");
     this.$allowGWChanging.addEventListener("click", () => {
       this.allowGWColourChanging();
+    });
+
+    this.$pauseButton = document.querySelector("#pause");
+    this.$pauseButton.addEventListener("click", () => {
+      this.togglePause();
     });
 
     this.getPreview();
@@ -124,5 +131,16 @@ export default class HTMLConnector {
       ".colorGWPick",
     ) as HTMLElement).style.background = hex;
     (document.querySelector(".colorGWPick") as HTMLElement).textContent = hex;
+  }
+
+  // Pause/Unpause the game
+  public togglePause(event: MouseEvent): void {
+    if (this.game.paused) {
+      this.game.unpause();
+      this.$pauseButton.innerHTML = "Pause";
+    } else {
+      this.game.pause();
+      this.$pauseButton.innerHTML = "Resume";
+    }
   }
 }
