@@ -16,6 +16,7 @@ export default class Person extends Tile {
     private reproductionValue = 0,
     public colour = 0,
     public vitality = Util.randomInt(20, 70),
+    public index = -1
   ) {
     super(colour);
     this.game.colonyPush(this);
