@@ -205,3 +205,6 @@ div.input-group-prepend{
 .custom-control{
   display: flex;
 }
+.input-group input[type=file] {
+    width: 100%;
+}
