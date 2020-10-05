@@ -20,17 +20,21 @@ export default class Util {
   // Average vitality of Person in colony.
   public static average(persons: Person[]): number {
     let sum = 0;
+    let count = 0;
     for (const person of persons) {
-      sum += person.vitality;
+      if (person !== null) {
+        count++;
+        sum += person.vitality;
+      }
     }
-    return sum / persons.length;
+    return sum / count;
   }
 
   // Maximum vitality of Person in colony.
   public static maxVitality(persons: Person[]): number {
     let max = 0;
     for (const person of persons) {
-      if (person.vitality > max) {
+      if (person !== null && person.vitality > max) {
         max = person.vitality;
       }
     }
