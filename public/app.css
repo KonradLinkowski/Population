@@ -205,6 +205,24 @@ div.input-group-prepend{
 .custom-control{
   display: flex;
 }
-.input-group input[type=file] {
-    width: 100%;
+
+@media screen and (max-width: 561px) {
+    .input-group {
+        flex-direction: column;
+    }
+
+    .input-group-text, .input-group input:not([type="checkbox"]), .input-group select {
+        width: 100%;
+    }
+
+    .input-group-text {
+        border-right: 1px solid #ced4da;
+        border-bottom: none;
+        border-radius: .25rem .25rem 0 0;
+    }
+
+    .input-group input, .input-group select {
+        border-top: none;
+        border-radius: 0 0 .25rem .25rem;
+    }
 }
