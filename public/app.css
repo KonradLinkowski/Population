@@ -184,6 +184,24 @@ div.input-group-prepend{
   border-top-left-radius: 0px;
 }
 
+#add_map {
+  display: none;
+}
+
+label.upload {
+  background-color: #28a745;
+  color: white;
+  padding: 0.5rem;
+  border-radius: .25rem;
+  cursor: pointer;
+  width: 400px;
+  transition: .1s ease-in-out;
+}
+
+label.upload:hover {
+  background-color: #22943c;
+}
+
 .btn-success{
   color: #fff;
   background-color: #28a745;
