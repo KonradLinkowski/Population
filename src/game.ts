@@ -116,7 +116,9 @@ export default class Game {
         continue;
       }
       for (const person of this.colonies[i]) {
-        person.move();
+        if (person !== null) {
+          person.move();
+        }
       }
       if (this.colonies[i].length === 0) {
         this.coloniesLabels[i].innerHTML =
@@ -142,6 +144,16 @@ export default class Game {
         " Max Vit: " +
         Util.maxVitality(this.colonies[i]).toFixed(2);
     }
+    for (let i: number = 0; i < this.coloniesNumber; i++) {
+      if (this.colonies[i] === null) {
+        continue;
+      }
+      this.colonies[i] = this.colonies[i].filter(person => person !== null);
+      this.colonies[i].forEach((person, index) => {
+        person.index = index;
+      });
+    }
+    this.map.redraw();
     this.htmlConnector.$ageLabel.innerHTML = "Age: " + this.ageCount++;
     this.timer += Date.now() - this.lastTime;
     if (this.timer > 250) {
@@ -156,15 +168,13 @@ export default class Game {
   }
 
   public colonyPush(obj: Person): void {
+    obj.index = this.colonies[obj.colour].length;
     this.colonies[obj.colour].push(obj);
     this.peopleCount++;
   }
 
   public colonyRemove(obj: Person): void {
-    const index = this.colonies[obj.colour].indexOf(obj, 0);
-    if (index > -1) {
-      this.colonies[obj.colour].splice(index, 1);
-    }
+    this.colonies[obj.colour][obj.index] = null;
     this.peopleCount--;
   }
 
