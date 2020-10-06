@@ -100,9 +100,6 @@ export default class Game {
     );
     this.intervalPointer = setInterval(this.play.bind(this), this.speed);
 
-    const tableElement = document.createElement("table");
-    tableElement.append();
-
     let tableBody = "";
     for (let i: number = 0; i < this.coloniesNumber; i++) {
       tableBody += `<tr class="colony-table__row colony-table__accent" data-team-color="${this.colours[i]}"></tr>`;
