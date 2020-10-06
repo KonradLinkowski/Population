@@ -1,0 +1,17 @@
+.colony-table thead {
+  font-weight: 600;
+}
+.colony-table td {
+  padding: 5px;
+}
+.colony-table__team {
+  width: 30px;
+}
+
+.colony-table__row {
+  background-color: white;
+}
+
+.colony-table__row--dead {
+  opacity: 0.3;
+}

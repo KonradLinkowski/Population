@@ -61,7 +61,7 @@ export default class Game {
     reproductiveThreshold: number,
     allowGWColours: boolean = false,
     grassColour = "",
-    waterColour = "",
+    waterColour = ""
   ) {
     this.htmlConnector = htmlConnector;
     this.canvas = canvas;
@@ -96,16 +96,29 @@ export default class Game {
     this.map = new Board(
       this,
       this.canvas as HTMLCanvasElement,
-      this.coloniesNumber,
+      this.coloniesNumber
     );
     this.intervalPointer = setInterval(this.play.bind(this), this.speed);
-    this.htmlConnector.$statisticsPanel.innerHTML = "";
+
+    let tableBody = "";
     for (let i: number = 0; i < this.coloniesNumber; i++) {
-      this.htmlConnector.$statisticsPanel.innerHTML +=
-        '<span style="color:' + this.colours[i] + '"></span><br>';
+      tableBody += `<tr class="colony-table__row colony-table__accent" data-team-color="${this.colours[i]}"></tr>`;
     }
+
+    this.htmlConnector.$statisticsPanel.innerHTML = `<table class="colony-table">
+    <thead>
+      <tr>
+        <td></td>
+        <td>Colony</td>
+        <td>Population</td>
+        <td>Avg Vit</td>
+        <td>Max Vit</td>
+      </tr>
+    </thead>
+    ${tableBody}
+    </table>`;
     this.coloniesLabels = this.htmlConnector.$statisticsPanel.querySelectorAll(
-      "span",
+      ".colony-table__row"
     );
   }
 
@@ -121,34 +134,28 @@ export default class Game {
         }
       }
       if (this.colonies[i].length === 0) {
-        this.coloniesLabels[i].innerHTML =
-          "<del>Colony " +
-          (i + 1) +
-          ": " +
-          this.colonies[i].length +
-          " Avg Vit : " +
-          Util.average(this.colonies[i]).toFixed(2) +
-          " Max Vit: " +
-          Util.maxVitality(this.colonies[i]).toFixed(2) +
-          "</del>";
+        // Colony has died - update color scheme
+        this.coloniesLabels[i].classList.add("colony-table__row--dead");
+
         this.colonies[i] = null;
         continue;
       }
-      this.coloniesLabels[i].innerHTML =
-        "Colony " +
-        (i + 1) +
-        ": " +
-        this.colonies[i].length +
-        " Avg Vit : " +
-        Util.average(this.colonies[i]).toFixed(2) +
-        " Max Vit: " +
-        Util.maxVitality(this.colonies[i]).toFixed(2);
+
+      // Colony is alive - update stats
+      this.coloniesLabels[i].innerHTML = `
+      <td class="colony-table__team" style="background-color:${this.coloniesLabels[
+        i
+      ].getAttribute("data-team-color")}"></td>
+      <td>${i + 1}</td>
+      <td>${this.colonies[i].length}</td>
+      <td>${Util.average(this.colonies[i]).toFixed(2)}</td>
+      <td>${Util.maxVitality(this.colonies[i]).toFixed(2)}</td>`;
     }
     for (let i: number = 0; i < this.coloniesNumber; i++) {
       if (this.colonies[i] === null) {
         continue;
       }
-      this.colonies[i] = this.colonies[i].filter(person => person !== null);
+      this.colonies[i] = this.colonies[i].filter((person) => person !== null);
       this.colonies[i].forEach((person, index) => {
         person.index = index;
       });
