@@ -1,4 +1,5 @@
 import Board from "./board";
+import { HSLColor } from "./hsl_color";
 import HTMLConnector from "./html_connector";
 import Person from "./person";
 import Tile from "./tile";
@@ -6,19 +7,19 @@ import Util from "./util";
 
 export default class Game {
   public ageCount = 0;
-  public colours = [
-    "#ffff00",
-    "#ff00ff",
-    "#ff0000",
-    "#8800ff",
-    "#ff8800",
-    "#888888",
-    "#8888ff",
-    "#ff0088",
-    "#000000",
-    "#0088ff",
-    "#00ff00",
-    "#0000ff",
+  public colours: HSLColor[] = [
+    [60, 100, 50],
+    [300, 100, 50],
+    [0, 100, 50],
+    [272, 100, 50],
+    [32, 100, 50],
+    [0, 0, 53],
+    [240, 100, 77],
+    [328, 100, 50],
+    [0, 0, 0],
+    [208, 100, 50],
+    [120, 100, 50],
+    [240, 100, 50],
   ];
   public coloniesColours: number = this.colours.length - 2;
   public colonies: Person[][] = [];
@@ -170,7 +171,7 @@ export default class Game {
     }
   }
 
-  public getColour(index: number): string {
+  public getColour(index: number): HSLColor {
     return this.colours[index];
   }
 
