@@ -1,53 +1,36 @@
-import Game from "./game";
-import Person from "./person";
-import Tile from "./tile";
-import Util from "./util";
-import RGBColor from "./rgb_color";
+import { Tile } from "./tile";
+import { RGBColor } from "./color";
+import { Colony } from './colony';
+import { getDistance, getRandomIntTo } from './utils';
+
+const cache: { [key: string]: Tile[]} = {}
+
+const boardOptionsDefault = {
+  landColor: new RGBColor(0, 255, 0),
+  waterColor: new RGBColor(0, 0, 255)
+}
+
+export type BoardOptions = typeof boardOptionsDefault;
 
 export default class Board {
-  private canvas: HTMLCanvasElement;
-  private context: CanvasRenderingContext2D;
-  private imageData: ImageData;
-  private map: (Tile)[][];
+  private board: Tile[];
   private height: number;
   private width: number;
-  private coloniesNumber: number;
-  private game: Game;
-  private rgbCache: {
-    [key: string]: RGBColor
-  } = {};
 
-  constructor(game: Game, canvas: HTMLCanvasElement, coloniesNumber: number) {
-    this.coloniesNumber = coloniesNumber;
-    this.game = game;
-    this.canvas = canvas;
-    this.height = canvas.height;
-    this.width = canvas.width;
-    this.context = canvas.getContext("2d");
-    this.imageData = this.context.getImageData(0, 0, this.width, this.height);
+  constructor(private options: BoardOptions = boardOptionsDefault) {}
 
-    this.map = [];
-    for (let i = 0; i < this.width; i++) {
-      this.map[i] = [];
+  public setImage(imageData: ImageData) {
+    this.width = imageData.width
+    this.height = imageData.height
+    this.board = [];
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      const color = new RGBColor(imageData.data[i], imageData.data[i + 1], imageData.data[i + 2])
+      const landColorDistance = color.distance(this.options.landColor)
+      const waterColorDistance = color.distance(this.options.waterColor)
+      const x = (i / 4) % this.width;
+      const y = Math.floor(i / 4 / this.width);
+      this.board.push(new Tile(x, y, landColorDistance < waterColorDistance, this.getNeighbours.bind(this)))
     }
-    for (let i = 0; i < this.imageData.data.length; i += 4) {
-      const color: string =
-        "#" +
-        Util.int2hex(this.imageData.data[i]) +
-        Util.int2hex(this.imageData.data[i + 1]) +
-        Util.int2hex(this.imageData.data[i + 2]);
-      if (color === this.game.getColour(this.game.GRASS_COLOUR)) {
-        const x = (i / 4) % this.width;
-        const y = Math.floor(i / 4 / this.width);
-        this.map[x][y] = this.game.GRASS_TILE;
-      }
-      if (color === this.game.getColour(this.game.WATER_COLOUR)) {
-        const x = (i / 4) % this.width;
-        const y = Math.floor(i / 4 / this.width);
-        this.map[x][y] = this.game.WATER_TILE;
-      }
-    }
-    this.createColonies();
   }
 
   // Check whether x and y are in board's bounds.
@@ -55,96 +38,38 @@ export default class Board {
     return x >= 0 && x < this.width && y >= 0 && y < this.height;
   }
 
-  // Returns object at (x, y).
-  public getObj(x: number, y: number): Tile {
-    if (this.isInBounds(x, y)) {
-      return this.map[x][y];
-    }
-    return null;
-  }
-
-  // Sets object at (x, y).
-  public setObj(x: number, y: number, obj: Tile): void {
-    this.map[x][y] = obj;
-
-    const rgb = this.getRGBColour(obj.colour);
-    const index = (y * this.width + x) * 4;
-    this.imageData.data[index + 0] = rgb.r;
-    this.imageData.data[index + 1] = rgb.g;
-    this.imageData.data[index + 2] = rgb.b;
-    this.imageData.data[index + 3] = 255;
-  }
-
-  private getRGBColour(index: number): RGBColor {
-    const color = this.game.getColour(index);
-    if (!(color in this.rgbCache)) {
-      const match = /#([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])/i.exec(color);
-      this.rgbCache[color] = new RGBColor(
-        parseInt(match[1], 16),
-        parseInt(match[2], 16),
-        parseInt(match[3], 16)
-      );
-    }
-    return this.rgbCache[color];
-  }
-
-  public redraw(): void {
-    this.context.putImageData(this.imageData, 0, 0);
-  }
-
-  // Kills Person at position.
-  public killPerson(x: number, y: number, killer: Person): void {
-    (this.map[x][y] as Person).kill();
-    this.setObj(x, y, killer);
-  }
-
-  // Create colonies.
-  public createColonies(): void {
-    let x;
-    let y;
-    const offset = 10;
-    let x2;
-    let y2;
-    let test;
-    for (let i: number = 0; i < this.coloniesNumber; i++) {
-      while (true) {
-        x = Util.randomInt(0, this.width - 1);
-        y = Util.randomInt(0, this.height - 1);
-        if (this.map[x][y].colour === this.game.GRASS_COLOUR) {
-          break;
-        }
-      }
-      for (let j: number = 0; j < 50; j++) {
-        test = 0;
-        while (true) {
-          test += 1;
-          do {
-            test += 0.01;
-            x2 = x + Util.randomInt(0, offset);
-            y2 = y + Util.randomInt(0, offset);
-          } while (!this.isInBounds(x2, y2));
-          if (test >= 50) {
-            break;
-          }
-          if (this.map[x2][y2].colour === this.game.GRASS_COLOUR) {
-            this.setObj(
-              x2,
-              y2,
-              new Person(
-                this.game,
-                this,
-                x2,
-                y2,
-                0,
-                Util.randomInt(0, 100),
-                i,
-                Util.randomInt(0, 100),
-              ),
-            );
-            break;
-          }
-        }
+  public spawnColonies(colonies: Colony[]): void {
+    const landTiles = this.board.filter(tile => tile.isLand)
+    for (const colony of colonies) {
+      const index = getRandomIntTo(landTiles.length)
+      const { x, y } = landTiles[index]
+      landTiles.splice(index, 1)
+      const neighbours = this.getNeighbours(x, y, colony.options.maxDistance)
+      for (const person of colony.people) {
+        const neighbourIndex = getRandomIntTo(neighbours.length)
+        const neighbour = neighbours[neighbourIndex]
+        neighbour.person = person
+        neighbour.person.tile = neighbour
+        neighbours.splice(neighbourIndex, 1)
       }
     }
+  }
+
+  getNeighbours(x: number, y: number, distance: number): Tile[] {
+    const key = `${x};${y};${distance}`
+    if (key in cache) {
+      return [...cache[key]];
+    }
+    const nei = this.board.filter(tile => tile.isLand && getDistance(tile.x, tile.y, x, y) <= distance)
+    cache[key] = nei
+    return nei
+  }
+
+  getImageData() {
+    const array = new Uint8ClampedArray(this.board.flatMap(tile => [
+      ...(tile.person ? tile.person.colony.options.color : tile.isLand ? this.options.landColor : this.options.waterColor).toArray()
+    ]))
+    const imageData = new ImageData(array, this.width)
+    return imageData
   }
 }

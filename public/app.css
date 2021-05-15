@@ -1,4 +1,4 @@
-@import "../src/colony_table.css";
+@import "./colony_table.css";
 
 * {
   max-width: 100%;

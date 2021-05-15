@@ -1,120 +1,77 @@
-import Board from "./board";
-import Game from "./game";
-import Tile from "./tile";
-import Util from "./util";
+import { Colony } from './colony';
+import { Tile } from './tile';
+import { getRandomInt, getRandomIntTo } from './utils';
 
-export default class Person extends Tile {
-  private dead = false;
-  private diseased = false;
-
+export class Person {
+  age = 0;
+  reproductionValue = 0
+  reproductiveThreshold = 20
+  kc = 0
   constructor(
-    private game: Game,
-    private map: Board,
-    private x: number,
-    private y: number,
-    private age = 0,
-    private reproductionValue = 0,
-    public colour = 0,
-    public vitality = Util.randomInt(20, 70),
-    public index = -1
-  ) {
-    super(colour);
-    this.game.colonyPush(this);
-  }
+    public tile: Tile,
+    public colony: Colony,
+    public vitality = getRandomInt(20, 70)
+  ) {}
 
   // Check whether Person should die.
   public shouldDie(): boolean {
     return this.vitality < this.age;
   }
 
-  // Make Person ill or well.
-  public cripple(chance: boolean): void {
-    const howMuch = 2; // I don't remember how big number should it be, but it makes linting problems
-    if (Math.random() < 0.5) { return; }
-    if (chance && this.diseased) {
-      this.vitality *= howMuch;
-      this.diseased = false;
-      return;
-    }
-    this.vitality /= howMuch;
-    this.diseased = true;
-  }
-
   // Person move every age.
   public move(): void {
     this.age++;
     this.reproductionValue++;
-    // this.cripple(true);
-    let x;
-    let y;
-    do {
-      x = Util.randomInt(-1, 1);
-      y = Util.randomInt(-1, 1);
-    } while (
-      !this.map.isInBounds(this.x + x, this.y + y) &&
-      (x === 0 && y === 0)
-    );
-    const obj = this.map.getObj(this.x + x, this.y + y);
-    const tempColour: number = obj ? obj.colour : this.game.WATER_COLOUR;
-    switch (tempColour) {
-      case this.game.GRASS_COLOUR:
-        this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
-        this.reproduce();
-        this.x += x;
-        this.y += y;
-        this.map.setObj(this.x, this.y, this);
-        break;
-      case this.game.WATER_COLOUR:
-        break;
-      case this.colour:
-        break;
-      default:
-        if (
-          this.vitality >=
-          (this.map.getObj(this.x + x, this.y + y) as Person).vitality
-        ) {
-          this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
-          this.reproduce();
-          this.x += x;
-          this.y += y;
-          this.map.killPerson(this.x, this.y, this);
-        } else {
-          this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
-          this.kill();
-        }
-        break;
-    }
+    const neighbours = this.tile.getNeighbours(this.tile.x, this.tile.y, 1.5)
+    const nextTile = neighbours[getRandomIntTo(neighbours.length)];
     if (this.shouldDie()) {
-      this.map.setObj(this.x, this.y, this.game.GRASS_TILE);
       this.kill();
+      return
+    }
+    if (nextTile.person !== null) {
+      if (nextTile.person.colony === this.colony) {
+        // todo
+        return
+      } else if (this.vitality > nextTile.person.vitality) {
+        nextTile.person.kill()
+        nextTile.person = this
+        this.tile.person = null
+        this.tile = nextTile
+      } else {
+        this.kill()
+        return
+      }
+    } else if (nextTile.isLand) {
+      this.tile.person = null
+      this.tile = nextTile
+      nextTile.person = this
+    }
+
+    if (this.reproductionValue >= this.reproductiveThreshold) {
+      this.reproduce()
+      this.reproductionValue = 0
     }
   }
 
-  // Reproduction.
   public reproduce(): void {
-    if (this.reproductionValue < this.game.reproductiveThreshold) {
-      return;
+    const neighbours = this.tile.getNeighbours(this.tile.x, this.tile.y, 5)
+    let tile = null
+    while (true) {
+      if (!neighbours.length) return
+      const index = getRandomIntTo(neighbours.length)
+      tile = neighbours[index]
+      if (!tile.person) break
+      neighbours.splice(index, 1)
     }
-    this.reproductionValue = 0;
-    const variable: number = Util.randomInt(-5, 5);
-    this.map.setObj(
-      this.x,
-      this.y,
-      new Person(
-        this.game,
-        this.map,
-        this.x,
-        this.y,
-        0,
-        Util.randomInt(0, 100),
-        this.colour,
-        this.vitality + variable,
-      ),
-    );
+    const person = new Person(tile, this.colony, this.vitality + getRandomInt(-5, 5))
+    this.colony.add(person)
+    tile.person = person
   }
 
-  public kill(): void {
-    this.dead = true;
-    this.game.colonyRemove(this);
+  public kill() {
+    this.kc += 1
+    this.tile.person = null
+    this.tile = null
+    this.colony.kill(this)
   }
 }
